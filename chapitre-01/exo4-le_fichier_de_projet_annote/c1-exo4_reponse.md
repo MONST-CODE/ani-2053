@@ -7,21 +7,21 @@ NKGlad - GLAD loader as standalone static library.
 """
 
 from Jenga import *  #import des fonction et outils necessaire pour le fonctionnement denotre fichier .jenga 
-from jengaconfig import * #fonction top secret nous permettant d'ecrire moins mais chaque avantage a un inconvenients 
+from jengaconfig import * #fonction Raccourcissante nous permettant d'ecrire moins mais chaque avantage a un inconvenients 
 
 with project("NKGlad"):
-    staticlib()         #Bibliotheque static
-    language("C")       #Language C
-    location(".")       #A La Racine 
+    staticlib()         #Bibliotheque static sont contenue es entierement recopier et utiliser lors de la compilation 
+    language("C")       #La Nature du Language es le Language C
+    location(".")       # A La Racine du Projet(au meme endroit que les autres fichiers )
 
     includedirs([
         "include",
     ])
 
     files([
-        "include/**.h",
+        "include/**.h",         # incompris car habituer au .ccp et aussi j'aimerais savoir reelement le concept de recherches dans les sous dossier 
     ])
-
+    # je ne saisi pas bien cette partie a cause des links et des directory j'y suis un peu perdu 
     objdir("%{wks.location}/Build/Obj/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}")
     targetdir("%{wks.location}/Build/Lib/%{cfg.buildcfg}-%{cfg.system}")
 
