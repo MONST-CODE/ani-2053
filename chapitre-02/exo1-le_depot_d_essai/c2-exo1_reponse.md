@@ -107,3 +107,18 @@ H chapitre-01/exo7-le_temps_que_ca_prend/c1-exo7_reponse.md
 H chapitre-01/exo8-debug_contre_release/c1-exo8_reponse.md
 H chapitre-01/exo9-l_utilisateur_avant_le_lecteur/c1-exo9_reponse.md
 ```
+* GRAPHE "git log --all --decorate --oneline --graph"
+
+```
+PS C:\...\...\...\ani-2053> git log --all --decorate --oneline --graph
+>> 
+* cea5fb8 (HEAD -> main, origin/main, origin/HEAD) Premier exo
+* 734f628 feat:Exo 6
+* c57ebcf feat:Exo 4
+* 5cae370 Exo 5
+* 5f0319d essayons l'EXO 4
+* 88a5bdf feat: push de l'EXO 1
+* bd7cf1a Essayons
+* 40e6258 On ne comprends certes rien mais on cree d'abord tous au cas ou
+* d799fd5 Initial commit
+```
