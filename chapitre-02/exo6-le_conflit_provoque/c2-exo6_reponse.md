@@ -313,3 +313,8 @@ hint: 'git pull' before pushing again.
 hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 ```
 ## Resolution du fast-forwards
+* taper git pull (dans le dépôt défectueux)
+
+vous obtiendrez ce resultat 
+```
+<img src="image.png">
