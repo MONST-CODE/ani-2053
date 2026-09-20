@@ -316,5 +316,7 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 * taper git pull (dans le dépôt défectueux)
 
 vous obtiendrez ce resultat 
-```
+
 <img src="image.png">
+vous choisisez et le soucis est resolu  vous pouvez choisir ce qui es aconserver ou pas .
+<img src="image1.png">

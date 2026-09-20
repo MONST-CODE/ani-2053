@@ -56,5 +56,36 @@ Apres modifications et apres avoir supprimer la partie qui devras venir en secon
     
 warning: 5 lines add whitespace errors.
 ```
-* Commit de Chaque Section
+## Commit de Chaque Section
 
+* 1ere section
+```bash
+PS C:\Users\CEO BRUNO ZAMBA\Desktop\git_essai> git commit -m "ajout de la partie salutations"
+[main 4408675] ajout de la partie salutations
+ 1 file changed, 16 insertions(+)
+ create mode 100644 commmit.cpp
+```
+* 2eme section 
+
+```bash
+PS C:\''''\'''''\'''\git_essai> git add commit.cpp
+fatal: pathspec 'commit.cpp' did not match any files
+PS C:\'''\''''\'''\git_essai> git add commmit.cpp
+PS C:\''''\''''\'''\git_essai> git commit -m "ajout de la partie double de l'age"
+[main e67bd9a] ajout de la partie double de l'age
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+ ```
+ * Push final
+ ```bash
+PS C:\'''\''''\'''\git_essai> git push origin main       
+Enumerating objects: 7, done.
+Counting objects: 100% (7/7), done.
+Delta compression using up to 16 threads
+Compressing objects: 100% (6/6), done.
+Writing objects: 100% (6/6), 746 bytes | 746.00 KiB/s, done.
+Total 6 (delta 3), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (3/3), completed with 1 local object.
+To https://github.com/MONST-CODE/git_essai
+   7f12003..e67bd9a  main -> main
+PS C:\\''''\''''\git_essai> 
+```
