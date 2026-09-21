@@ -122,3 +122,40 @@ PS C:\...\...\...\ani-2053> git log --all --decorate --oneline --graph
 * 40e6258 On ne comprends certes rien mais on cree d'abord tous au cas ou
 * d799fd5 Initial commit
 ```
+# Exo reele 
+* Initialisation du depot et Ajout des 3 fichier 
+```
+PS C:\...\...\Desktop\essai> git init
+Initialized empty Git repository in C:/Users/CEO BRUNO ZAMBA/Desktop/essai/.git/
+PS C:\...\....\Desktop\essai> git add 1.md
+PS C:\...\....\Desktop\essai> git commit -m "premier fichier"
+[main (root-commit) a71d3a9] premier fichier
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 1.md
+PS C:\..\...\Desktop\essai> git add 2.md                   
+PS C:\....\...\Desktop\essai> git commit -m "Deuxieme fichier"
+[main f456020] Deuxieme fichier
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 2.md
+PS C:\...\...\Desktop\essai> git add 3.md                    
+PS C:\...\.....\Desktop\essai> git commit -m "Troisieme fichier"
+[main df2b0b2] Troisieme fichier
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ create mode 100644 3.md
+PS C:\...\...\Desktop\essai> 
+```
+* Historique
+```
+PS C:\....\.....\Desktop\essai> git log --oneline
+df2b0b2 (HEAD -> main) Troisieme fichier
+f456020 Deuxieme fichier
+a71d3a9 premier fichier
+```
+* Graphe
+```
+PS C:\...\...\Desktop\essai> git log --oneline --graph --all
+* df2b0b2 (HEAD -> main) Troisieme fichier
+* f456020 Deuxieme fichier
+* a71d3a9 premier fichier
+```
+notre graphe es lineaire parcequ'il ne possede qu'une branche principale et aucune secondaire .

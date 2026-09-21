@@ -1,4 +1,6 @@
-# Six maniere de le Defaire
+# Demo 2 : Les Conflits en Direct
+## 1-Conflit lors de la Creation du repo sur git et sur notre environnement
+Pour creer un conflit je suis passer par une autre methode je suis aller sur mon bureau jai creer le dossier **git_essai** et je l'ai laiser vide pour un debut puis je suis aller sur github creer un repo avec le meme Nom  **git essai**  lors de la creation jai choisis la licence MIT et comme language C++ ce qui fit que mon depot etant creer surinternet possedait donc deja des fichier je suis revenu sur mon pc et j'ai creer un fichier **Readme.md** ensuite pas de commande **git pull** directement du **git remote add origin https://github.com/MONST-CODE/git_essai** voici donc le conflits creer .
 
 ```
 PS C:\....\...\...\git_essai> git init
@@ -257,7 +259,7 @@ index 0000000..ae14514
 +OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 +SOFTWARE.
 ```
-## 2-Conflit de ligne demander modifications a distances (recherche d'un non fast forward)
+## 2-Conflit de ligne demander danjs l'EXO
 * Clonner le depot dans un autre dossier 
 ```
 PS C:\''''\'''\Desktop\patr> git clone https://github.com/MONST-CODE/git_essai                      
@@ -316,5 +318,9 @@ hint: See the 'Note about fast-forwards' in 'git push --help' for details.
 vous obtiendrez ce resultat 
 
 <img src="image.png">
-vous choisisez et le soucis est resolu  vous pouvez choisir ce qui es aconserver ou pas .
+
+
+vous choisisez et le soucis est resolu  vous pouvez choisir ce qui es a conserver ou pas .
+
+
 <img src="image1.png">
