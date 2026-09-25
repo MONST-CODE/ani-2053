@@ -1,0 +1,11 @@
+#!usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Exo2 sept fenetre - jenga workspace
+
+from Jenga import*
+with project("exo2"):
+    windowedapp()
+    language("C++")
+    cppdialect("C++17")
+    files(["c3-exo2_main.cpp"])
+    usenkentseukit()
