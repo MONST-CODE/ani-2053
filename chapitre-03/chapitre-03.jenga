@@ -12,3 +12,8 @@ with workspace("chapitre-03"):
 
     with include("exo1-la_fenetre_nue/exo1-la_fenetre_nue.jenga"):
         pass
+    
+    with include("exo2-les_sept_droits/exo2.jenga"):
+        pass
+    with include("exo3-les_bornes/exo3.jenga"):
+        pass

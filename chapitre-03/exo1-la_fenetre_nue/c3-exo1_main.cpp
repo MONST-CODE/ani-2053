@@ -13,15 +13,12 @@ int nkmain(const NkEntryState &state) {
     config.title = "Ma Fentre Nkentseu";
     config.width = 800;
     config.height = 600;
-    nkentseu::NkWindow window(config);
-
     //Creation de la fenetre et Verification de la bonne Creation de celle ci
-
-    if(!window.Create(config)) {
-        logger.Error(" Echec de la Creation de la fenetre");
-        return -1;
+    
+    nkentseu::NkWindow window(config);
+    if(!window.IsOpen()){
+        logger.Error("Echec de l'initialisation de la fenetre");
     }
-
     //Creation d'un Boolen pour la gestion de la boucle des Evenements
 
     bool IsRunning = true;
@@ -29,7 +26,7 @@ int nkmain(const NkEntryState &state) {
     //Boucle D'evenement
 
     while (IsRunning){
-        
+
         nkentseu::NkEvent* event = nullptr;
 
         while ((event = nkentseu::NkEvents().PollEvent()) != nullptr)
