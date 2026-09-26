@@ -37,12 +37,12 @@ PS C:\....\...\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-Error loading workspace: useconfig: fichier de config introuvable: C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\NkentseuKit\NkentseuKit.jenga
+Error loading workspace: useconfig: fichier de config introuvable: C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\NkentseuKit\NkentseuKit.jenga
 Failed to load workspace.
 ```
 * J'ai ecrit 'configuration' au lieu de 'configurations'
 ```cpp
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -62,7 +62,7 @@ Failed to load workspace.
 ```
 * 'TargetOs' correction 'TargetOS'
 ```cpp
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -81,7 +81,7 @@ Failed to load workspace.
 ```
 * Ici 'TargetArch' es bien ecrit le souci vient du 'x86' la correction est 'X86' mais jai d'abord mis ARCH en majuscule ce qui creea l'erreur suivante 
 ```cpp
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -98,7 +98,7 @@ PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> je
 
 Error loading workspace: type object 'TargetArch' has no attribute 'x86_64'
 Failed to load workspace.
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -118,7 +118,7 @@ Failed to load workspace.
 ```
 * Ici 'windoweapp'es mal ecrit correction 'windowedapp'
 ```cpp
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -154,7 +154,7 @@ PS C:\..\...\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 ╚══════════════════════════════════════════════════════════════════╝
 
 
-Executable not found: C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
+Executable not found: C:\.....\.....\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
 ```
 ## 2-ERREUR DU A NOTRE REEL CODE
 *  Serie D'erreur courant 
@@ -196,7 +196,7 @@ Build Order (1 projects):
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                             Compilation Error: c3-exo1_main.cpp                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:1:10: fatal error:   ║
 ║ 'NKWindow/NKWindow.h' file not found                                                         ║
 ║     1 | #include "NKWindow/NKWindow.h"                                                       ║
@@ -224,7 +224,7 @@ Status:         ✗ FAILURE
 Echecs (1) — a corriger :
   ✗ LaFenetreNue
 
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -242,7 +242,7 @@ PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> je
 Loading workspace...
 Error loading workspace: name 'useNkentseuKit' is not defined
 Failed to load workspace.
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -259,7 +259,7 @@ PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> je
 Loading workspace...
 Error loading workspace: (unicode error) 'unicodeescape' codec can't decode bytes in position 20-21: malformed \N character escape (chapitre-03.jenga, line 11)
 Failed to load workspace.'
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build        
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build        
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -293,19 +293,19 @@ Build Order (1 projects):
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                             Compilation Error: c3-exo1_main.cpp                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:3:25: error:         ║
 ║ expected ';' after namespace name                                                            ║
 ║     3 | using namespace Nkentseu                                                             ║
 ║       |                         ^                                                            ║
 ║       |                         ;                                                            ║
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:3:17: error: no      ║
 ║ namespace named 'Nkentseu'; did you mean 'nkentseu'?                                         ║
 ║     3 | using namespace Nkentseu                                                             ║
 ║       |                 ^~~~~~~~                                                             ║
 ║       |                 nkentseu                                                             ║
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\BRUNO\include/NKWindow/EntryPoints/NkWindowsDesktop.h:25: ║
 ║ 11: note: namespace 'nkentseu' defined here                                                  ║
 ║    25 | namespace nkentseu {                                                                 ║
@@ -313,7 +313,7 @@ Build Order (1 projects):
 ║ 2 errors generated.                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-✗ ✗ Compilation failed: C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
+✗ ✗ Compilation failed: C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
 
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  ✗ Build Failed                                                                 Time: 4.76s  │
@@ -333,7 +333,7 @@ Status:         ✗ FAILURE
 Echecs (1) — a corriger :
   ✗ LaFenetreNue
 
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -367,7 +367,7 @@ Build Order (1 projects):
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                             Compilation Error: c3-exo1_main.cpp                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:3:25: error:         ║
 ║ expected ';' after namespace name                                                            ║
 ║     3 | using namespace nkentseu                                                             ║
@@ -376,7 +376,7 @@ Build Order (1 projects):
 ║ 1 error generated.                                                                           ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-✗ ✗ Compilation failed: C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
+✗ ✗ Compilation failed: C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
 
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  ✗ Build Failed                                                                 Time: 2.48s  │
@@ -396,7 +396,7 @@ Status:         ✗ FAILURE
 Echecs (1) — a corriger :
   ✗ LaFenetreNue
 
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -430,13 +430,13 @@ Build Order (1 projects):
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                             Compilation Error: c3-exo1_main.cpp                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:14:65: error:        ║
 ║ expected ';' after expression                                                                ║
 ║    14 |         logger.Error("[app] Echec de la Creation de la fenetre")                     ║
 ║       |                                                                 ^                    ║
 ║       |                                                                 ;                    ║
-║ C:\Users\CEO BRUNO                                                                           ║
+║ C:\.....\CEO BRUNO                                                                           ║
 ║ ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:17:19: error: no     ║
 ║ member named 'Isopen' in 'nkentseu::NkWindow'                                                ║
 ║    17 |     while (window.Isopen()){                                                         ║
@@ -444,7 +444,7 @@ Build Order (1 projects):
 ║ 2 errors generated.                                                                          ║
 ╚══════════════════════════════════════════════════════════════════════════════════════════════╝
 
-✗ ✗ Compilation failed: C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
+✗ ✗ Compilation failed: C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp
 
 ┌──────────────────────────────────────────────────────────────────────────────────────────────┐
 │  ✗ Build Failed                                                                 Time: 2.49s  │
@@ -464,7 +464,7 @@ Status:         ✗ FAILURE
 Echecs (1) — a corriger :
   ✗ LaFenetreNue
 
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -510,7 +510,7 @@ Time:           3.58s
 Status:         ✓ SUCCESS
 ════════════════════════════════════════════════════════════════════════════════
 
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -528,14 +528,14 @@ PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> je
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ▶  EXECUTION  —  LaFenetreNue.exe
-     C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
+     C:\.....\.....\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ◀  FIN D'EXECUTION'  —  termine avec le code 3489660927  (71.36s)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PS C:\Users\CEO BRUNO ZAMBA\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
+PS C:\.....\.....\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga build
 
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║
@@ -569,7 +569,7 @@ Build Order (1 projects):
 ╔══════════════════════════════════════════════════════════════════════════════════════════════╗
 ║                             Compilation Error: c3-exo1_main.cpp                              ║
 ╠══════════════════════════════════════════════════════════════════════════════════════════════╣
-║ C:\Users\... ...                                                                           ║
+║ C:\.....\... ...                                                                           ║
 ║ ..\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue\c3-exo1_main.cpp:20:46: error: no     ║
 ║ member named 'pollEvent' in 'nkentseu::NkEventSystem'                                        ║
 ║    20 |         while ((event = nkentseu::NkEvents().pollEvent() != nullptr))                ║
@@ -723,7 +723,7 @@ PS C:\...\...\Desktop\ani-2053\chapitre-03\exo1-la_fenetre_nue> jenga run
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ▶  EXECUTION  —  LaFenetreNue.exe
-     C:\Users\... ...\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
+     C:\.....\... ...\Desktop\ani-2053\chapitre-03\Build\Bin\Debug-Windows\LaFenetreNue\LaFenetreNue.exe
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 
@@ -790,7 +790,8 @@ Il es visible que le code du chapitre celui presenter pas le prof lors de l'intr
 * La creation proprement dites de la fenetre avec window.create
 * la gestion de la boucle d'evenements tant avec un booleen qu'avec les fonctions evenementielle, 
 * Abscences du using namespaces nkentseu
-#### A-1-1-1CODE MINIMALES PROPOSER
+* Notre programme fait 45 lignes de code contre 16 lignes code cet ecart es du a des ajout par nous  a savoir ajout du namespaces nkentseu ecarts de lignes et commentaires afin d'obtenir une presentation plus claire et moins surcharger du code.
+#### A-1-1-1-CODE MINIMALES PROPOSER
 ```cpp
 #include "NKWindow/NKWindow.h"
 #include "NKWindow/NKMain.h"
