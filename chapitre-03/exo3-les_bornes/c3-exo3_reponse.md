@@ -1,6 +1,6 @@
 # LES BORNES
 ## Cas sans configurtions des minimales 
-### 1-1-Etatdu code
+### 1-1-Etat du code
 ```cpp
 #include "NKWindow/NKWindow.h"
 #include "NKWindow/NKMain.h"
@@ -53,7 +53,7 @@ int nkmain(const NkEntryState &state)
     return 0;
 }
 ```
-## 1-2-Console pour la configurtion(les repetitions on ete supprimer car iletait trop nombreux car present dans la boucle)
+## 1-2-Console pour la configurtion(les repetitions on ete supprimer car il etait trop nombreux car present dans la boucle)
 ```bash
 PS C:\.....\.....\Desktop\ani-2053\chapitre-03> jenga build 
 
@@ -239,7 +239,7 @@ int nkmain(const NkEntryState &state)
     return 0;
 }
 ```
-## 1-2-Console pour la configurtion(les repetitions on ete supprimer car iletait trop nombreux car present dans la boucle)
+## 1-2-Console pour la configurtion(les repetitions on ete supprimer car il etait trop nombreux car present dans la boucle)
 ```bash
 PS C:\.....\.....\Desktop\ani-2053\chapitre-03>jenga build        
 
@@ -359,3 +359,7 @@ PS C:\.....\.....\Desktop\ani-2053\chapitre-03>
 * La Taille MINIMALE Predefinis par le systeme est 
 - width = 144~150 ou 160 
 - heigth = 51~60
+
+## conclusion sur l'ecart entre pixels declares et ceux obtenu  
+
+l'Ecart observer au niveau des pixel declarer et de ceux obtenue vient du fait que Getsize() donne la taille de la fenetre complete pas de la cible de rendu donc il prends la taille complete puis retir les pixel reserves a certaines bars comme la barre de taches , de menu .

@@ -17,3 +17,13 @@ with workspace("chapitre-03"):
         pass
     with include("exo3-les_bornes/exo3.jenga"):
         pass
+    with include("exo5-le_titre_qui_informe/exo5.jenga"):
+        pass
+    with include("exo11-deux_fenetres/exo11.jenga"):
+        pass
+    with include("exo4-le_facteur_d_echelle/EXO4.jenga"):
+        pass
+    with include("exo9-les_quatre_dialogues/EXO9.jenga"):
+        pass
+    with include("exo10-la_fenetre_sans_bordure/EXO10.jenga"):
+        pass

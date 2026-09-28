@@ -1,7 +1,7 @@
 NkentseuKit - kit Jenga
 =========================
 
-construit le  : 2026-09-23 22:27
+construit le  : 2026-09-27 04:27
 workspace     : Nkentseu
 jenga         : 2.8.0
 en-tetes      : 286 fichiers dans include/
@@ -12,8 +12,8 @@ Modules, dans l'ordre de lien (du plus dependant au plus fondamental) :
     NKTime
     NKFileSystem
     NKLogger
-    NKMath
     NKThreading
+    NKMath
     NKContainers
     NKMemory
     NKCore

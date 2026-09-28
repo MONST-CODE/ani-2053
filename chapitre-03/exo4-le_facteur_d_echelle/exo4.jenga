@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+from Jenga import*
+with project("EXO4"):
+    windowedapp()
+    language("C++")
+    cppdialect("C++17")
+    files(["c3-exo4_main.cpp"])
+    usenkentseukit()
