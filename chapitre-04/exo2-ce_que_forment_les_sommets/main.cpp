@@ -12,7 +12,7 @@ int main()
     std::string typeSaisi;
     long long rest = 0; 
     long long comp =0;
-    long long refuser;
+    long long refuser=0;
 
     // 1. On lit des chaînes de caractères avec std::cin
     std::cin >> typeSaisi >> s;
@@ -32,12 +32,12 @@ int main()
         return 1;
     }
     //switch case
-    if (monType == POINTS&&LINES&&LINE_STRIP&&TRIANGLES&&TRIANGLE_FAN&&TRIANGLE_STRIP&&QUADS&&quads)
+    if (monType == POINTS || monType == LINES ||  monType == LINE_STRIP ||   monType == TRIANGLES ||  monType == TRIANGLE_FAN ||   monType == TRIANGLE_STRIP ||  monType == quads)
     
     {
         
         comp=s;rest=s;
-        std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+        std::cout << "POINTS" << " " << s <<" " << comp << " POINTS " << rest << "\n";
         
         if((s%2) == 0){
             comp=s/2;
@@ -46,19 +46,19 @@ int main()
         }
         rest = s%2;
         nombredelignes =comp;
-        std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+        std::cout << "LINES" << " " << s <<" " << comp <<" LINES "<< rest << "\n";
         
         
         if(s<2 || s==0){
             rest = 1;
-        std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+        std::cout << "LINES_STRIP" << " " << s <<" " << comp <<" LINES_STRIP " << rest << "\n";
         }else{
             comp = s-1;
-            std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+            std::cout << "LINES_STRIP" << " " << s <<" " << comp << " LINES_STRIP " << rest << "\n";
         }
         nombredelignes +=comp;
         
-        std::cout<<""<<"REFUSER"<<std::endl;
+        std::cout<<"QUADS "<<refuser<<std::endl;
         
         if(s%3 == 0){
             comp = s/3;
@@ -72,7 +72,7 @@ int main()
         }
         rest = s%3;
         nombre_de_triangles +=comp;
-        std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+        std::cout << "TRIANGLES" << " " << s  <<" " << comp << " TRIANGLES " << rest << "\n";
        
         if(s>=3)
         {
@@ -83,7 +83,7 @@ int main()
             rest = s;
         }
         nombre_de_triangles +=comp;
-        std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
+        std::cout << "TRIANGLES_FAN" << " " << s  <<" "  << comp << " TRIANGLES_FAN " << rest << "\n";
     }
 
     if(monType == QUADS || monType == quads)
