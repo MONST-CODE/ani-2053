@@ -31,14 +31,14 @@ int main()
         std::cerr << "Type inconnu : " << typeSaisi << "\n";
         return 1;
     }
-    //switch case
-    if (monType == POINTS || monType == LINES ||  monType == LINE_STRIP ||   monType == TRIANGLES ||  monType == TRIANGLE_FAN ||   monType == TRIANGLE_STRIP ||  monType == quads)
+    //if
+    if (monType == POINTS )
     
     {
         
         comp=s;rest=s;
         std::cout << "POINTS" << " " << s <<" " << comp << " POINTS " << rest << "\n";
-        
+      if (monType == LINES) {
         if((s%2) == 0){
             comp=s/2;
         }else{
@@ -47,8 +47,9 @@ int main()
         rest = s%2;
         nombredelignes =comp;
         std::cout << "LINES" << " " << s <<" " << comp <<" LINES "<< rest << "\n";
-        
-        
+      }
+      if (monType == LINE_STRIP)
+      {
         if(s<2 || s==0){
             rest = 1;
         std::cout << "LINES_STRIP" << " " << s <<" " << comp <<" LINES_STRIP " << rest << "\n";
@@ -56,10 +57,14 @@ int main()
             comp = s-1;
             std::cout << "LINES_STRIP" << " " << s <<" " << comp << " LINES_STRIP " << rest << "\n";
         }
+      }
+      if(monType == quads) {
         nombredelignes +=comp;
         
         std::cout<<"QUADS "<<refuser<<std::endl;
-        
+       }
+       if (monType == TRIANGLES)
+       {
         if(s%3 == 0){
             comp = s/3;
         }
@@ -74,6 +79,8 @@ int main()
         nombre_de_triangles +=comp;
         std::cout << "TRIANGLES" << " " << s  <<" " << comp << " TRIANGLES " << rest << "\n";
        
+       }
+       if(monType == TRIANGLE_FAN || monType == TRIANGLE_STRIP){
         if(s>=3)
         {
             comp = s-2;
@@ -84,8 +91,8 @@ int main()
         }
         nombre_de_triangles +=comp;
         std::cout << "TRIANGLES_FAN" << " " << s  <<" "  << comp << " TRIANGLES_FAN " << rest << "\n";
-    }
-
+        }
+       }
     if(monType == QUADS || monType == quads)
     {
         ++refuser;
