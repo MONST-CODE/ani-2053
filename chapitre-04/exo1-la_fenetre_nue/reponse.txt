@@ -1,0 +1,8 @@
+Ce que la coquille fait a ma place :
+la coquille cree et gere la boucle d'evenement de maniere plus simples et plus legeres pour moi 
+
+Ce qui se passe si je configure dans OnInit :
+mes configurations ne sont pas prises en compte les config de NkCanvasApp config par defaut sont prises en comptes tu peux voir "ApplicationNkCanvas.png"
+
+Ce qui se passe sans NKMain.h :
+on a un message d'erreur qui est " undefined reference to `WinMain' "

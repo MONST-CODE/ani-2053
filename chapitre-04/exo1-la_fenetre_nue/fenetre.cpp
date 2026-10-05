@@ -7,11 +7,17 @@ class fenetre_nue : public NkCanvasApp
 {
    public: fenetre_nue()
     {
+        
+        
+    };
+    bool OnInit() override {
         Config().title = "fenetre";
         Config().width = 800 ;
         Config().height = 600 ;
         Config().clearColor = NkColor2D(255,10,20,30);
-    }
+            return true;
+        }
+
     
 };
 
