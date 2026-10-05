@@ -32,13 +32,13 @@ int main()
         return 1;
     }
     //switch case
-    switch(monType)
+    if (monType == POINTS&&LINES&&LINE_STRIP&&TRIANGLES&&TRIANGLE_FAN&&TRIANGLE_STRIP&&QUADS&&quads)
+    
     {
-        case  POINTS:
+        
         comp=s;rest=s;
         std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
-        break;
-        case LINES:
+        
         if((s%2) == 0){
             comp=s/2;
         }else{
@@ -47,8 +47,8 @@ int main()
         rest = s%2;
         nombredelignes =comp;
         std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
-        break;
-        case LINE_STRIP:
+        
+        
         if(s<2 || s==0){
             rest = 1;
         std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
@@ -57,11 +57,9 @@ int main()
             std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
         }
         nombredelignes +=comp;
-        break;
-        case QUADS :
+        
         std::cout<<""<<"REFUSER"<<std::endl;
-        break;
-        case TRIANGLES:
+        
         if(s%3 == 0){
             comp = s/3;
         }
@@ -75,8 +73,7 @@ int main()
         rest = s%3;
         nombre_de_triangles +=comp;
         std::cout << typeSaisi << " " << s << " " << comp << typeSaisi << rest << "\n";
-        break;
-        case TRIANGLE_STRIP:
+       
         if(s>=3)
         {
             comp = s-2;
@@ -98,6 +95,8 @@ int main()
     std::cout << "POINTS " << Nombre_total_de_Points << '\n';
     std::cout << "SEGMENTS " << nombredelignes << '\n';
     std::cout << "TRIANGLES " << nombre_de_triangles << '\n';
-    std::cout << "REFUSES " << refuser << '\n';
+    std::cout << "REFUSER " << refuser << '\n';
+
+    std::cin>>s;
 }
 
