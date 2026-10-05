@@ -1,0 +1,13 @@
+#!usr/bin/env python3
+#coding: _*_utf-8_*_
+
+from Jenga import*
+
+with project("EXO2"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++17")
+    files(["main.cpp"])
+    usenkentseukit()
+    with filter("system:Windows"):
+        links(["d3dcompiler"])

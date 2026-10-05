@@ -15,3 +15,5 @@ with workspace("NKCanvas"):
 
     with include("exo1-la_fenetre_nue/exo1.jenga"):
         pass
+    with include("exo2-ce_que_forment_les_sommets/exo2.jenga"):
+        pass
