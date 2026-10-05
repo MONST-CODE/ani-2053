@@ -7,9 +7,9 @@ with workspace("chapitre-03"):
     configurations(['Debug' , 'Release'])
     targetoses([TargetOS.WINDOWS])
     targetarchs([TargetArch.X86_64])
-
+#configuration entre parentheses tu mets le chemin qui meme a ton kit 
     useconfig("../chapitre-03/BRUNO/NkentseuKit.jenga")
-
+#Gestion des project ces ici que on enregistre un project
     with include("exo1-la_fenetre_nue/exo1-la_fenetre_nue.jenga"):
         pass
     

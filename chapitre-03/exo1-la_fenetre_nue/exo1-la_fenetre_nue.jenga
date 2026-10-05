@@ -5,8 +5,13 @@
 from Jenga import*
 with project("LaFenetreNue"):
     windowedapp()
+    # Le langauge
     language("C++")
+    #La Version du language C++
     cppdialect("C++17")
     location(".")
+    # destination ou se trouve le ou les fichier cpp a compiler
     files(["c3-exo1_main.cpp"])
+    #ces ceci que on dclare dans le project pourqu'ilgere les problemes de Nkwindow et nkmain non detecter sans ceci ce qui es fait dans l works pace ne fonctionne pas et vice versa
     usenkentseukit()
+    

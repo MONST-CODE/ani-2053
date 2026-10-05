@@ -1,0 +1,690 @@
+#pragma once
+// -----------------------------------------------------------------------------
+// @File    NkGuiWidgets.h
+// @Brief   Widgets immédiats NKGui (Phase 2 : amorce — Button, Panel). Les
+//          labels texte (NKFont) et le reste des widgets arrivent en Phase 3.
+// @License Proprietary - All Rights Reserved (see LICENSE)
+// -----------------------------------------------------------------------------
+
+#include "NKGui/NkGuiExport.h"
+#include "NKGui/Core/NkGuiContext.h"
+
+namespace nkentseu {
+	namespace nkgui {
+
+		// ── Convention `##id` des libelles (2026-08-17) ──────────────────────
+		// Tout ce qui suit `##` dans un libelle sert a l'IDENTITE, jamais a
+		// l'AFFICHAGE : `Rechercher##filtre` s'affiche « Rechercher » et reste
+		// identifie par la chaine complete (GetId hache tout, INCHANGE — deux
+		// widgets « OK##a » / « OK##b » restent distincts). Renvoie la borne de
+		// fin de la partie AFFICHEE : premier `##`, ou fin de chaine. Un libelle
+		// entierement `##...` a une partie affichee VIDE (widget sans texte).
+		NKENTSEU_NKGUI_API const char *LabelEnd(const char *label) noexcept;
+
+		// ── Glisser-deposer (2026-08-17) — API minimale ──────────────────────
+		// La bibliotheque porte l'etat, gere le survol, le fantome et la
+		// livraison ; l'application DECLARE (meme conception que l'occultation
+		// par couches). Pas de multi-selection glissee, pas d'annulation
+		// animee : le minimum qui debloque le reparentage d'arbre et le
+		// glisser d'assets.
+		//
+		//   // source — juste APRES le widget source :
+		//   if (BeginDragSource(ctx)) {
+		//       SetDragPayload(ctx, "entity", &id, sizeof(id), node->name);
+		//       EndDragSource(ctx);
+		//   }
+		//   // cible — juste APRES le widget cible :
+		//   if (BeginDropTarget(ctx)) {
+		//       if (const void *p = AcceptDragPayload(ctx, "entity"))
+		//           Reparent(*(const NkEntityId *)p, myId);
+		//       EndDropTarget(ctx);
+		//   }
+		//
+		// True tant qu'un glisser DEPUIS le dernier widget soumis est en cours
+		// (demarre apres ~4 px de mouvement souris maintenue sur ce widget).
+		NKENTSEU_NKGUI_API bool BeginDragSource(NkGuiContext &ctx) noexcept;
+		// Charge TYPEE, copiee (taille max NkGuiContext::DragPayloadMax octets).
+		// `ghostLabel` = texte du fantome que la bibliotheque dessine sous la
+		// souris (couche overlay). A appeler chaque frame du glisser.
+		NKENTSEU_NKGUI_API void SetDragPayload(NkGuiContext &ctx, const char *type, const void *data, int32 size,
+											   const char *ghostLabel) noexcept;
+		NKENTSEU_NKGUI_API void EndDragSource(NkGuiContext &ctx) noexcept;
+		// True si un glisser survole le dernier widget soumis (la bibliotheque
+		// surligne le rect en accent). Le TYPE se verifie a l'acceptation.
+		NKENTSEU_NKGUI_API bool BeginDropTarget(NkGuiContext &ctx) noexcept;
+		// CIBLE EXPLICITE (2026-08-17, NK3DModeler) : pour une ZONE qui n'est pas
+		// un widget -- un panneau entier, un fond de liste -- et qui contient deja
+		// des widgets. `ButtonBehavior` sur une telle zone capturerait le clic
+		// (soumis avant eux : activeId bloque leur ItemHoverable) ou volerait
+		// hotId (soumis apres : le greedy les prive du survol). Cette forme ne
+		// capture RIEN : elle pose seulement ce que la livraison consomme
+		// (lastItemId/lastItemRect) puis suit le meme chemin que BeginDropTarget.
+		// Une source reste un widget (BeginDragSource a besoin d'activeId).
+		NKENTSEU_NKGUI_API bool BeginDropTarget(NkGuiContext &ctx, NkGuiId id, const NkRect &rect) noexcept;
+		// SOURCE A ZONE EXPLICITE (2026-09-03, NkUIDesign) : la jumelle de la cible a
+		// zone, pour la meme raison -- une ligne d'arbre ou une case peinte par un
+		// composant n'est pas un widget, donc `activeId` ne la designera jamais.
+		// Arme sur un appui DANS `rect`, demarre au-dela du meme seuil de ~4 px que
+		// la forme widget, et alimente LA MEME machine d'etat du contexte. Ne touche
+		// ni a activeId ni a hotId : les widgets contenus gardent survol et clic.
+		// True tant qu'un glisser DEPUIS cette zone est en cours ; appeler
+		// SetDragPayload + EndDragSource dans le bloc, comme pour la forme widget.
+		NKENTSEU_NKGUI_API bool BeginDragSource(NkGuiContext &ctx, NkGuiId id, const NkRect &rect) noexcept;
+		// Livraison : non-nul UNE frame — au relachement sur la cible, si le
+		// type correspond. Un lacher HORS de toute cible ne livre rien.
+		NKENTSEU_NKGUI_API const void *AcceptDragPayload(NkGuiContext &ctx, const char *type,
+														 int32 *outSize = nullptr) noexcept;
+		NKENTSEU_NKGUI_API void EndDropTarget(NkGuiContext &ctx) noexcept;
+
+		// Fond de panneau (rectangle thème + bord).
+		NKENTSEU_NKGUI_API void PanelBackground(NkGuiContext &ctx, const NkRect &r) noexcept;
+
+		// Texte à une position (coin haut-gauche). Utilise ctx.font. col par défaut
+		// = thème. Renvoie la largeur dessinée.
+		NKENTSEU_NKGUI_API float32 TextAt(NkGuiContext &ctx, const NkVec2 &topLeft, const char *s) noexcept;
+		NKENTSEU_NKGUI_API float32 TextAt(NkGuiContext &ctx, const NkVec2 &topLeft, const char *s,
+										  const NkColor &col) noexcept;
+
+		// Bouton standard : true au clic (relâche dans le rect). `label` = identité
+		// (texte rendu en Phase 3).
+		NKENTSEU_NKGUI_API bool Button(NkGuiContext &ctx, const char *label, const NkRect &r) noexcept;
+
+		// Bouton étendu : flags (ex. Repeat) + délai/cadence de rafale PAR BOUTON
+		// (-1 = défauts du contexte ctx.repeatDelay / ctx.repeatRate).
+		NKENTSEU_NKGUI_API bool ButtonEx(NkGuiContext &ctx, const char *label, const NkRect &r, NkGuiButtonFlags flags,
+										 float32 repeatDelay = -1.f, float32 repeatRate = -1.f) noexcept;
+
+		// Raccourci : bouton à rafale (Repeat) avec délai/cadence optionnels.
+		NKENTSEU_NKGUI_API bool RepeatButton(NkGuiContext &ctx, const char *label, const NkRect &r,
+											 float32 repeatDelay = -1.f, float32 repeatRate = -1.f) noexcept;
+
+		// ── Widgets AUTO-LAYOUT (positionnés via ctx.layout / NextItemRect) ──────
+		// À utiliser entre BeginPanel/EndPanel (ou après ctx.BeginLayout).
+		NKENTSEU_NKGUI_API void Text(NkGuiContext &ctx, const char *s) noexcept;
+		// Texte avec RETOUR À LA LIGNE : coupe aux mots (repli caractère), respecte les
+		// '\n'. `wrapWidth <= 0` → largeur de contenu restante. Avance le curseur de
+		// N lignes. Base des libellés longs, tooltips multi-lignes, multi-ligne InputText.
+		NKENTSEU_NKGUI_API void TextWrapped(NkGuiContext &ctx, const char *text, float32 wrapWidth = -1.f) noexcept;
+		NKENTSEU_NKGUI_API bool Button(NkGuiContext &ctx, const char *label) noexcept; // rect auto
+		NKENTSEU_NKGUI_API bool Checkbox(NkGuiContext &ctx, const char *label, bool &value) noexcept;
+		// Case à cocher TRI-ÉTAT. Clic : Off→On, On→Off, Mixed→On (sémantique
+		// standard ; l'état Mixed est en général posé par l'app, ex. select-all).
+		NKENTSEU_NKGUI_API bool CheckboxTristate(NkGuiContext &ctx, const char *label, NkGuiCheck &state) noexcept;
+		// Case TRI-ÉTAT COMPACTE (sans libellé) — à composer dans une ligne d'arbre
+		// (CheckBox3 + SameLine + TreeNodeEditable/SelectableEditable). Bascule
+		// Off↔On (Mixed→Off) et retourne true au clic ; l'app applique alors la
+		// cascade via NkGuiTreeCascade si elle le souhaite.
+		NKENTSEU_NKGUI_API bool CheckBox3(NkGuiContext &ctx, const char *idStr, NkGuiCheck &state) noexcept;
+
+		// ── Helpers OPTIONNELS de sélection hiérarchique (modèle hybride) ──────
+		// NKGui ne stocke PAS la hiérarchie (façon ImGui) : l'app possède `states[]`
+		// (1 NkGuiCheck par nœud) + `parent[]` (index du parent, -1 = racine). Ces
+		// utilitaires agissent sur ces tableaux quand l'app le décide (ex. Alt+clic).
+		// Cascade RÉCURSIVE : met `node` + toute sa sous-arborescence à `value`.
+		NKENTSEU_NKGUI_API void NkGuiTreeCascade(NkGuiCheck *states, const int32 *parent, int32 count, int32 node,
+												 NkGuiCheck value) noexcept;
+		// Agrège l'état tri-état des nœuds internes (On/Off/Mixed) depuis leurs
+		// enfants, bottom-up. Les feuilles ne sont pas modifiées.
+		NKENTSEU_NKGUI_API void NkGuiTreeRecomputeMixed(NkGuiCheck *states, const int32 *parent, int32 count) noexcept;
+		NKENTSEU_NKGUI_API bool SliderFloat(NkGuiContext &ctx, const char *label, float32 &value, float32 vmin,
+											float32 vmax) noexcept;
+
+		// ── Graphiques (data-viz) ─────────────────────────────────────────────
+		// Barre de progression. `fraction` ∈ [0,1] ; `overlay` = texte centré (nullptr
+		// → pourcentage auto). Hauteur = ItemHeight, pleine largeur du contenu.
+		NKENTSEU_NKGUI_API void ProgressBar(NkGuiContext &ctx, float32 fraction,
+											const char *overlay = nullptr) noexcept;
+		// Courbe (PlotLines) / histogramme (PlotHistogram) d'un tableau de valeurs.
+		// `minV>=maxV` → échelle AUTO (min/max des données). `height<=0` → 60px.
+		// AMÉLIORATION vs ImGui : la valeur sous le curseur s'affiche en direct (survol).
+		NKENTSEU_NKGUI_API void PlotLines(NkGuiContext &ctx, const char *label, const float32 *values, int32 count,
+										  float32 minV = 0.f, float32 maxV = 0.f, float32 height = 0.f) noexcept;
+		NKENTSEU_NKGUI_API void PlotHistogram(NkGuiContext &ctx, const char *label, const float32 *values, int32 count,
+											  float32 minV = 0.f, float32 maxV = 0.f, float32 height = 0.f) noexcept;
+
+		// ── Couleur (ColorButton / ColorEdit / ColorPicker) ───────────────────
+		// `col` = RGBA float ∈ [0,1] (4 composantes ; NoAlpha → 3 lues/écrites).
+		// Pastille de couleur cliquable. `w/h <= 0` → tailles par défaut.
+		NKENTSEU_NKGUI_API bool ColorButton(NkGuiContext &ctx, const char *idStr, const float32 *col, float32 w = 0.f,
+											float32 h = 0.f, NkGuiColorFlags flags = NkGuiColorFlags::None) noexcept;
+		// Sélecteur complet : carré Saturation/Valeur + barre de Teinte (+ barre Alpha).
+		// Glisser dans chaque zone modifie la couleur. La TEINTE est préservée même au
+		// noir/blanc (HSV mémorisé par id). Retourne true si la couleur a changé.
+		NKENTSEU_NKGUI_API bool ColorPicker4(NkGuiContext &ctx, const char *label, float32 *col,
+											 NkGuiColorFlags flags = NkGuiColorFlags::None) noexcept;
+		// Pastille + code hexadécimal sur une ligne ; clic sur la pastille → ouvre le
+		// ColorPicker en popup (overlay). Retourne true si la couleur a changé.
+		NKENTSEU_NKGUI_API bool ColorEdit4(NkGuiContext &ctx, const char *label, float32 *col,
+										   NkGuiColorFlags flags = NkGuiColorFlags::None) noexcept;
+
+		// ── Image / Icône (quad texturé) ──────────────────────────────────────
+		// Dessine la texture `texId` (id backend) à la taille w×h. `tint` multiplie
+		// (blanc = telle quelle) ; `uv0/uv1` = sous-région (atlas/sprite). Auto-layout.
+		NKENTSEU_NKGUI_API void Image(NkGuiContext &ctx, uint32 texId, float32 w, float32 h,
+									  NkColor tint = NkColor{255, 255, 255, 255}, NkVec2 uv0 = NkVec2{0.f, 0.f},
+									  NkVec2 uv1 = NkVec2{1.f, 1.f}) noexcept;
+		// Bouton-image (icône cliquable) : fond + image centrée + survol. Retourne true au clic.
+		NKENTSEU_NKGUI_API bool ImageButton(NkGuiContext &ctx, const char *idStr, uint32 texId, float32 w, float32 h,
+											NkColor tint = NkColor{255, 255, 255, 255}, NkVec2 uv0 = NkVec2{0.f, 0.f},
+											NkVec2 uv1 = NkVec2{1.f, 1.f}) noexcept;
+		// Champs numériques façon ImGui. DragFloat/DragInt : GLISSER sur le champ pour
+		// changer la valeur (vitesse `speed`/pixel) + DOUBLE-CLIC pour saisir au clavier.
+		// InputFloat/InputInt : idem + boutons -/+ (pas `step`). `dir` = direction du
+		// glissement (Horizontal défaut / Vertical / Both). Pendant le survol/glisser,
+		// le widget pose `ctx.wantCursor` (↔ ou ↕) que l'app peut appliquer. Bornés
+		// [vmin, vmax]. Retourne true si la valeur a changé.
+		NKENTSEU_NKGUI_API bool DragFloat(NkGuiContext &ctx, const char *label, float32 &v, float32 speed = 0.1f,
+										  float32 vmin = -1.0e30f, float32 vmax = 1.0e30f,
+										  NkGuiDragDir dir = NkGuiDragDir::Horizontal) noexcept;
+		NKENTSEU_NKGUI_API bool DragInt(NkGuiContext &ctx, const char *label, int32 &v, float32 speed = 0.25f,
+										int32 vmin = -2147483640, int32 vmax = 2147483640,
+										NkGuiDragDir dir = NkGuiDragDir::Horizontal) noexcept;
+		NKENTSEU_NKGUI_API bool InputFloat(NkGuiContext &ctx, const char *label, float32 &v, float32 step = 1.f,
+										   float32 vmin = -1.0e30f, float32 vmax = 1.0e30f,
+										   NkGuiDragDir dir = NkGuiDragDir::Horizontal) noexcept;
+		NKENTSEU_NKGUI_API bool InputInt(NkGuiContext &ctx, const char *label, int32 &v, int32 step = 1,
+										 int32 vmin = -2147483640, int32 vmax = 2147483640,
+										 NkGuiDragDir dir = NkGuiDragDir::Horizontal) noexcept;
+		// Champ de saisie mono-ligne (focus, caret UTF-8, défilement, blink).
+		// `buf`/`bufSize` = tampon C éditable. Retourne true à la pression d'Entrée.
+		NKENTSEU_NKGUI_API bool InputText(NkGuiContext &ctx, const char *label, char *buf, int32 bufSize) noexcept;
+		// Variante avec FLAGS (mot de passe, décimal, hexa, majuscules, sans espace,
+		// lecture seule) + limite de CARACTÈRES (`maxChars`, -1 = pas de limite, en
+		// codepoints — distinct de bufSize qui borne les octets).
+		NKENTSEU_NKGUI_API bool InputTextEx(NkGuiContext &ctx, const char *label, char *buf, int32 bufSize,
+											NkGuiInputFlags flags, int32 maxChars = -1) noexcept;
+		// Champ de saisie MULTI-LIGNE dans `rect` : Entrée = saut de ligne, flèches
+		// ↑/↓ entre lignes, clic 2D, auto-scroll vers le caret + molette + scrollbar.
+		// Flags (ReadOnly/filtres) + maxChars. Retourne true si le texte a changé.
+		// `wrap` : retour à la ligne AUTOMATIQUE (word-wrap) à la largeur du champ (sinon les
+		// longues lignes débordent horizontalement). Défaut off (compatibilité).
+		NKENTSEU_NKGUI_API bool InputTextMultiline(NkGuiContext &ctx, const char *idStr, char *buf, int32 bufSize,
+												   const NkRect &rect, NkGuiInputFlags flags = NkGuiInputFlags::None,
+												   int32 maxChars = -1, bool wrap = false) noexcept;
+		NKENTSEU_NKGUI_API void Separator(NkGuiContext &ctx) noexcept;
+
+		// ════════════════ CONTENEURS DE LAYOUT ════════════════
+		// Empilent un sous-flux au curseur courant ; End* restaure le parent et l'avance du
+		// bloc consommé. Composables (HBox dans une cellule de Grid, VBox dans un HBox…).
+		// `gap < 0` (défaut) = garder l'espacement courant ; sinon impose l'espacement.
+		NKENTSEU_NKGUI_API void BeginVBox(NkGuiContext &ctx, float32 gap = -1.f) noexcept; ///< empilement vertical
+		NKENTSEU_NKGUI_API void EndVBox(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void BeginHBox(NkGuiContext &ctx, float32 gap = -1.f) noexcept; ///< alignement horizontal
+		NKENTSEU_NKGUI_API void EndHBox(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void BeginGrid(NkGuiContext &ctx, int32 columns,
+										  float32 gap = -1.f) noexcept; ///< grille N colonnes
+		NKENTSEU_NKGUI_API void EndGrid(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void BeginGroup(NkGuiContext &ctx) noexcept; ///< groupe (traite N widgets comme 1 bloc)
+		NKENTSEU_NKGUI_API void EndGroup(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void
+		BeginFlow(NkGuiContext &ctx,
+				  float32 gap = -1.f) noexcept; ///< horizontal avec retour ligne auto (tags, toolbars)
+		NKENTSEU_NKGUI_API void EndFlow(NkGuiContext &ctx) noexcept;
+		// FLEX À POIDS (flex-grow / stretch / fill). `sizes[i] > 0` = px fixes ; `sizes[i] < 0` =
+		// poids (-1 = poids 1) qui se partagent l'espace RESTANT. Single-pass exact (total connu).
+		// BeginRow : rangée horizontale, hauteur `height` (<=0 = ItemHeight), les widgets remplissent
+		//            chaque cellule (largeur = cellule, hauteur étirée).
+		NKENTSEU_NKGUI_API void BeginRow(NkGuiContext &ctx, float32 height, const float32 *sizes, int32 count,
+										 float32 gap = -1.f) noexcept;
+		NKENTSEU_NKGUI_API void EndRow(NkGuiContext &ctx) noexcept;
+		// BeginColumn : colonne verticale sur `totalHeight` (<=0 = hauteur restante de la région →
+		//               « prend tout ce qui reste »), largeur `width` (<=0 = pleine largeur).
+		NKENTSEU_NKGUI_API void BeginColumn(NkGuiContext &ctx, float32 width, const float32 *sizes, int32 count,
+											float32 totalHeight = -1.f, float32 gap = -1.f) noexcept;
+		NKENTSEU_NKGUI_API void EndColumn(NkGuiContext &ctx) noexcept;
+		// ÉCHELLE UI (DPI/HiDPI) : SetUiScale multiplie padding/rounding/espacement ; l'app recharge
+		// la police à tailleBase*scale. Scaled(px) = px * ctx.scale (pour tailles explicites).
+		NKENTSEU_NKGUI_API void SetUiScale(NkGuiContext &ctx, float32 s) noexcept;
+		NKENTSEU_NKGUI_API float32 Scaled(NkGuiContext &ctx, float32 px) noexcept;
+		NKENTSEU_NKGUI_API void
+		SpringRight(NkGuiContext &ctx,
+					float32 width) noexcept; ///< pousse les items suivants à droite (réserve `width`)
+		// Poignée de redimensionnement : glisse *value (px) entre min/max. vertical=true → barre verticale (glisse X).
+		// `grabPx` (2026-08-18) : LARGEUR DE PREHENSION, en px. La zone attrapable
+		// est elargie a `grabPx` sans que le trait dessine change. 0 = comportement
+		// historique (on attrape exactement ce qu'on voit). Dette recuperee de
+		// `NkUILayout::DrawSplitter`, que l'extinction de NKUI va supprimer : sans
+		// zone elargie, on attrape la barre d'onglets voisine par erreur — et un
+		// clic manque devient un desancrage au lieu d'un redimensionnement.
+		NKENTSEU_NKGUI_API bool Splitter(NkGuiContext &ctx, const char *idStr, const NkRect &handle, bool vertical,
+										 float32 *value, float32 minV, float32 maxV,
+										 float32 grabPx = 0.f) noexcept;
+		// Geometrie PURE d'un separateur : depuis la zone entiere et un RATIO,
+		// rend le rectangle VISUEL et le rectangle de PREHENSION. Extraite pour
+		// etre verifiable sans GPU — les deux formes de Splitter l'utilisent.
+		// `grabPx` <= `thickness` : la prehension vaut le visuel.
+		NKENTSEU_NKGUI_API void SplitterRects(const NkRect &area, bool vertical, float32 ratio, float32 thickness,
+											  float32 grabPx, NkRect *visual, NkRect *grab) noexcept;
+		// Separateur pilote par un RATIO dans [minR, maxR] (fraction de la zone),
+		// et non par une position en pixels. Seconde propriete recuperee de NKUI :
+		// un ratio survit au redimensionnement de la fenetre, une position en px
+		// non. `area` est la zone ENTIERE que le separateur coupe.
+		NKENTSEU_NKGUI_API bool SplitterRatio(NkGuiContext &ctx, const char *idStr, const NkRect &area, bool vertical,
+											  float32 *ratio, float32 minR = 0.1f, float32 maxR = 0.9f,
+											  float32 thickness = 4.f, float32 grabPx = 12.f) noexcept;
+		// Stack : enfants superposés dans une boîte width×height ; ancrer le prochain via StackAnchor.
+		NKENTSEU_NKGUI_API void BeginStack(NkGuiContext &ctx, float32 width, float32 height) noexcept;
+		NKENTSEU_NKGUI_API void StackAnchor(NkGuiContext &ctx,
+											int32 anchor) noexcept; ///< 0=HG 1=HC 2=HD 3=CG 4=C 5=CD 6=BG 7=BC 8=BD
+		NKENTSEU_NKGUI_API void EndStack(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void Spacer(NkGuiContext &ctx, float32 w, float32 h) noexcept; ///< espace invisible
+		// Couche overlay : dessin AU-DESSUS du contenu courant entre Push/Pop (badges, surbrillances).
+		NKENTSEU_NKGUI_API void PushOverlay(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void PopOverlay(NkGuiContext &ctx) noexcept;
+		// En-tête repliable (accordéon) : true si ouvert → l'app dessine le contenu de la section.
+		NKENTSEU_NKGUI_API bool CollapsingHeader(NkGuiContext &ctx, const char *label) noexcept;
+		/// Un en-tete repliable dont l'IDENTITE et le TEXTE sont distincts.
+		/// Meme raison que `TreeNodeEx` : un libelle traduit change a chaud, et
+		/// l'identite ne doit pas changer avec lui.
+		NKENTSEU_NKGUI_API bool CollapsingHeaderEx(NkGuiContext &ctx, const char *idStr,
+												   const char *label) noexcept;
+
+		// Arbre repliable : true si ouvert (dessiner les enfants puis TreePop).
+		NKENTSEU_NKGUI_API bool TreeNode(NkGuiContext &ctx, const char *label) noexcept;
+		/// Un noeud d'arbre dont l'IDENTITE et le TEXTE sont distincts.
+		///
+		/// 🔴 A EMPLOYER DES QU'UN LIBELLE PEUT CHANGER -- et depuis le multilingue
+		///    du 27/09, c'est le cas de tous. `TreeNode(ctx, label)` derive son
+		///    identite du TEXTE : basculer la langue rouvrirait toutes les sections
+		///    repliees, EN PLEINE SESSION, puisque la bascule est a chaud.
+		///    Meme forme que `TreeNodeEditable`, qui separe les deux depuis toujours.
+		NKENTSEU_NKGUI_API bool TreeNodeEx(NkGuiContext &ctx, const char *idStr,
+										   const char *label) noexcept;
+		NKENTSEU_NKGUI_API void TreePop(NkGuiContext &ctx) noexcept;
+
+		// Nœud d'arbre RENOMMABLE : clic ouvre/ferme, double-clic (ou Maj+Entrée)
+		// édite le libellé inline dans `label` (tampon mutable). `idStr` = id STABLE.
+		// Entrée valide, Échap annule. À refermer par TreePop si ouvert.
+		NKENTSEU_NKGUI_API bool TreeNodeEditable(NkGuiContext &ctx, const char *idStr, char *label, int32 bufSize,
+												 bool allowRename = true) noexcept;
+
+		// Élément SÉLECTIONNABLE (ligne pleine largeur). Surligné si `selected`,
+		// survol mis en évidence. Retourne true au clic. Respecte BeginDisabled
+		// (non cliquable + grisé) → permet de décider du sélectionnable par contexte.
+		NKENTSEU_NKGUI_API bool Selectable(NkGuiContext &ctx, const char *label, bool selected) noexcept;
+
+		// Comme Selectable mais RENOMMABLE : double-clic (ou Maj+Entrée pendant
+		// survol) édite le libellé inline dans `label` (tampon mutable). `idStr` =
+		// id STABLE. Entrée valide, Échap annule. Pour feuilles d'arbre / listes.
+		// `allowRename=false` refuse le renommage de CET élément (décision dynamique
+		// par appelant) tout en gardant la sélection.
+		NKENTSEU_NKGUI_API bool SelectableEditable(NkGuiContext &ctx, const char *idStr, char *label, int32 bufSize,
+												   bool selected, bool allowRename = true) noexcept;
+
+		// Item d'une liste sélectionnable (entre ctx.BeginSelectList / EndSelectList).
+		// Distingue survol / sélection (fond bleu) / FOCUS clavier (liseré accent).
+		NKENTSEU_NKGUI_API bool SelectItem(NkGuiContext &ctx, const char *label) noexcept;
+
+		// Item sélectionnable RENOMMABLE : double-clic (ou Maj+Entrée sur l'item
+		// focalisé) ouvre une édition inline dans le tampon `label`. `idStr` est un
+		// identifiant STABLE (indépendant du libellé édité). Entrée valide, Échap
+		// annule. Retourne true au clic de sélection.
+		NKENTSEU_NKGUI_API bool SelectItemEditable(NkGuiContext &ctx, const char *idStr, char *label, int32 bufSize,
+												   bool allowRename = true) noexcept;
+
+		// Barre d'onglets : dessine les onglets, gère la sélection (persistante par
+		// `id`), retourne l'index sélectionné. Le contenu se dessine APRÈS l'appel.
+		NKENTSEU_NKGUI_API int32 TabBar(NkGuiContext &ctx, const char *id, const char *const *labels,
+										int32 count) noexcept;
+		// Variante : `enabled[i] == false` => onglet grisé et NON sélectionnable
+		// (enabled peut être nullptr = tous actifs).
+		NKENTSEU_NKGUI_API int32 TabBarEx(NkGuiContext &ctx, const char *id, const char *const *labels, int32 count,
+										  const bool *enabled) noexcept;
+		/// La MÊME barre, en colonne quand `vertical` est vrai.
+		///
+		/// 🔴 UNE OPTION, PAS UNE SECONDE FONCTION. Rodolf, 28/09 : « on a déjà
+		///    des onglets horizontaux, on doit aussi avoir des onglets
+		///    verticaux ». Écrire `TabBarVertical` à côté aurait donné deux
+		///    dessins d'onglet, deux gestions de sélection et deux jeux de
+		///    couleurs — et le jour où l'onglet actif change d'apparence, une
+		///    seule des deux suivrait. *Deux chemins qui peignent le même widget.*
+		///
+		/// ⚠️ SEULES LA GÉOMÉTRIE ET LA PLACE DU LISERÉ CHANGENT : en colonne, un
+		///    onglet prend toute la largeur de la région et son liseré passe à
+		///    GAUCHE — posé en bas, il se lirait comme une séparation entre deux
+		///    onglets, pas comme un état.
+		NKENTSEU_NKGUI_API int32 TabBarOriente(NkGuiContext &ctx, const char *id,
+											   const char *const *labels, int32 count,
+											   const bool *enabled, bool vertical) noexcept;
+
+		/// Ce qu'une barre d'onglets doit savoir en plus pour être AUSSI le rail
+		/// de pastilles d'une coquille d'éditeur.
+		///
+		/// 🔴 POURQUOI CES CHAMPS EXISTENT. Rodolf, 28/09 : « ce tiroir est aussi
+		///    un ensemble de fenêtres, dont les onglets verticaux ont été
+		///    remplacés par les pastilles ». Il a raison, et le rail le prouvait
+		///    à sa manière : il refaisait à la main la géométrie, le survol, la
+		///    sélection et l'infobulle d'une barre d'onglets — sans jamais rien
+		///    noter dans le relevé. **Les pastilles n'étaient mesurables par
+		///    personne.**
+		///
+		///    Mais une substitution directe aurait perdu trois choses que le rail
+		///    dit et qu'une barre ordinaire ne sait pas dire. Les voici, et elles
+		///    ne sont pas des options de confort :
+		struct NkGuiTabBarOptions {
+				/// En colonne plutôt qu'en ligne.
+				bool vertical = false;
+				/// ① PASTILLE : l'onglet est un CARRÉ de `cote` px et son contenu
+				///    est dessiné par l'appelant (icône vectorielle, badge…) au
+				///    lieu d'un libellé. 0 = onglet ordinaire à libellé.
+				float32 cote = 0.f;
+				void (*icone)(NkGuiContext &ui, const NkRect &r, int32 index, bool actif,
+							  bool survol, void *user) = nullptr;
+				void *iconeUser = nullptr;
+				/// ② REFERMABLE : cliquer l'onglet ACTIF le désélectionne et la
+				///    barre rend −1. Un tiroir se referme par sa propre pastille ;
+				///    une barre d'onglets ordinaire garde toujours une sélection.
+				bool refermable = false;
+				/// ③ SÉLECTION DÉTENUE PAR L'APPELANT. La coquille possède déjà
+				///    `mRailOuvert` et le sauvegarde dans l'état d'interface ;
+				///    laisser la barre tenir une SECONDE vérité en aurait fait
+				///    deux qui divergent au premier rechargement.
+				///    −2 = la barre garde la sienne ; sinon la valeur est imposée.
+				int32 selectionImposee = -2;
+				/// Infobulles par onglet (nullptr = le libellé).
+				const char *const *infobulles = nullptr;
+				/// Écart entre deux onglets, en px (0 = le défaut de l'orientation).
+				float32 ecart = 0.f;
+		};
+
+		/// La barre d'onglets COMPLÈTE — celle dont `TabBar`, `TabBarEx` et
+		/// `TabBarOriente` ne sont que des portes. Rend l'index sélectionné, ou
+		/// −1 si `refermable` et que l'onglet actif vient d'être refermé.
+		NKENTSEU_NKGUI_API int32 TabBarOpt(NkGuiContext &ctx, const char *id,
+										   const char *const *labels, int32 count,
+										   const bool *enabled,
+										   const NkGuiTabBarOptions &opt) noexcept;
+		// Onglets RENOMMABLES : `labels` = tableau de tampons MUTABLES (chacun de
+		// taille `labelBufSize`), double-clic sur un onglet l'édite inline. `enabled`
+		// et `allowRename` (nullptr = défauts) permettent de griser / refuser le
+		// renommage onglet par onglet, dynamiquement.
+		NKENTSEU_NKGUI_API int32 TabBarEditable(NkGuiContext &ctx, const char *id, char *const *labels, int32 count,
+												int32 labelBufSize, const bool *enabled = nullptr,
+												const bool *allowRename = nullptr) noexcept;
+
+		// Conteneur : fond + barre de titre + ouvre la région de layout (clip).
+		// (Niveau unique pour l'instant ; l'imbrication viendra avec une pile.)
+		NKENTSEU_NKGUI_API bool BeginPanel(NkGuiContext &ctx, const char *title, const NkRect &r) noexcept;
+		NKENTSEU_NKGUI_API void EndPanel(NkGuiContext &ctx) noexcept;
+
+		// ── Fenêtres FLOTTANTES (multi-fenêtres façon ImGui) ──────────────────
+		// Fenêtre déplaçable (barre de titre) + redimensionnable (coin bas-droit) +
+		// repliable (chevron) + fermable (`open` → croix). Plusieurs fenêtres
+		// coexistent dans la fenêtre OS, avec Z-ORDER : cliquer en passe une devant
+		// (occlusion gérée). Position/taille/repli PERSISTÉS par titre. Appeler End
+		// UNIQUEMENT si Begin retourne true (convention NKGui, comme BeginPanel).
+		//   if (Begin(ctx,"Inspecteur",&open)) { …widgets… EndWindow(ctx); }
+		// (sortie en fenêtre OS séparée = multi-viewport, viendra avec les backends.)
+		// Pos/taille de la PROCHAINE fenêtre, appliquées à sa CRÉATION (FirstUseEver) —
+		// l'utilisateur peut ensuite la bouger/redimensionner. Idéal pour le layout par
+		// défaut des panneaux d'un éditeur.
+		NKENTSEU_NKGUI_API void SetNextWindowPos(NkGuiContext &ctx, float32 x, float32 y) noexcept;
+		NKENTSEU_NKGUI_API void SetNextWindowSize(NkGuiContext &ctx, float32 w, float32 h) noexcept;
+		NKENTSEU_NKGUI_API bool Begin(NkGuiContext &ctx, const char *title, bool *open = nullptr,
+									  NkGuiWindowFlags flags = NkGuiWindowFlags::None) noexcept;
+		NKENTSEU_NKGUI_API void EndWindow(NkGuiContext &ctx) noexcept;
+
+		// ── DOCKING : ancrer des fenêtres ensemble (splits + onglets) ─────────
+		// Région où ancrer des fenêtres. À appeler AVANT les Begin des fenêtres
+		// dockables. Glisser une fenêtre flottante par sa barre de titre sur le
+		// DockSpace → boussole (centre = onglet, bords = split) ; relâcher = ancre.
+		// Glisser un onglet vers le bas/dehors = désancre (redevient flottante).
+		// Splitters draggables entre régions ancrées. (Mode v1.)
+		NKENTSEU_NKGUI_API void DockSpace(NkGuiContext &ctx, const char *idStr, const NkRect &rect) noexcept;
+		// Ancre une fenêtre dans le DockSpace PAR PROGRAMME (layout par défaut au boot).
+		// `zone` : 0 = onglet, 1 = gauche, 2 = droite, 3 = haut, 4 = bas (sur la 1re feuille).
+		NKENTSEU_NKGUI_API void DockBuilderDock(NkGuiContext &ctx, const char *windowTitle, int32 zone) noexcept;
+		// Ancre `windowTitle` en ONGLET dans le nœud de `targetTitle` (même barre).
+		NKENTSEU_NKGUI_API void DockBuilderDockTab(NkGuiContext &ctx, const char *windowTitle,
+												   const char *targetTitle) noexcept;
+		/// Ancre `windowTitle` en **SCINDANT** le nœud de `targetTitle`, au lieu d'y
+		/// poser un onglet. `zone` : 1 = gauche, 2 = droite, 3 = haut, 4 = bas.
+		///
+		/// 🔴 ELLE MANQUAIT, ET C'EST TOUT L'ÉCART ENTRE « DEUX ONGLETS » ET « DEUX
+		///    PANNEAUX ». Rodolf, 28/09 : « il faut en faire deux panneaux
+		///    redimensionnables au lieu d'un avec deux sections ». Deux panneaux
+		///    déclarant le même côté devenaient DEUX ONGLETS — on n'en voit alors
+		///    qu'un, et rien ne se redimensionne. Le moteur savait déjà scinder
+		///    (`DockWindow(..., zone)`) ; seule la porte publique manquait.
+		///
+		/// ⚠️ SI LA CIBLE N'EST PAS ANCRÉE, on retombe sur le côté demandé plutôt
+		///    que de ne rien faire : un panneau qui n'apparaît pas est pire qu'un
+		///    panneau mal placé.
+		NKENTSEU_NKGUI_API void DockBuilderDockSplit(NkGuiContext &ctx, const char *windowTitle,
+													 const char *targetTitle, int32 zone) noexcept;
+		// Sélectionne l'ONGLET d'une fenêtre ancrée (révéler un panneau par raccourci) :
+		// la feuille qui la contient bascule son `activeTab` dessus. false si non ancrée.
+		NKENTSEU_NKGUI_API bool DockFocusWindow(NkGuiContext &ctx, const char *windowTitle) noexcept;
+		// Vrai si la fenêtre est ANCRÉE dans une feuille de dock (la meta survit à la
+		// fermeture -> une fenêtre fermée puis rouverte retrouve sa place).
+		NKENTSEU_NKGUI_API bool DockIsWindowDocked(NkGuiContext &ctx, const char *windowTitle) noexcept;
+		// Feuille de dock où la fenêtre est ancrée (-1 = flottante / non ancrée).
+		NKENTSEU_NKGUI_API int32 DockWindowNode(NkGuiContext &ctx, const char *windowTitle) noexcept;
+		// Retire la fenêtre de sa feuille SANS drag (meta dockNode = -1) ; une feuille
+		// vidée collapse -> la zone disparaît (fermeture de sidebar façon VSCode).
+		NKENTSEU_NKGUI_API void DockDetachWindow(NkGuiContext &ctx, const char *windowTitle) noexcept;
+		// (25/09) ELAGUE LES FEUILLES VIDES de l'arbre de docks, et rend leur nombre.
+		//
+		// ⚠️ CE N'EST PAS UN ALGORITHME NEUF : elle appelle `DockCollapseLeaf`, qui
+		//    existe depuis toujours et que `DockDetachWindow` utilise deja. Il vivait
+		//    seulement dans un espace anonyme, donc hors d'atteinte d'un appelant -- et
+		//    une coquille qui en avait besoin s'est vu refuser le geste plutot que d'en
+		//    ecrire une seconde version. Cette ligne DECLARE ce qui existe.
+		//
+		// A QUOI CA SERT : une disposition RELUE d'un fichier peut contenir des feuilles
+		//    auxquelles plus aucune fenetre n'est liee (un panneau que l'hote refuse
+		//    desormais d'ouvrir). Une feuille sans fenetre RESERVE QUAND MEME SA
+		//    LARGEUR : a l'ecran, une colonne vide. `DockDetachWindow` collapse a la
+		//    detache ; ceci collapse ce qui n'a jamais ete rempli.
+		//
+		// ⚠️ ELLE NE TOUCHE JAMAIS UNE FEUILLE QUI PORTE UNE FENETRE. C'est LE risque
+		//    de cette fonction, et il se paie en fenetres perdues : le negatif du banc
+		//    l'eprouve explicitement.
+		NKENTSEU_NKGUI_API int32 DockPruneEmpty(NkGuiContext &ctx) noexcept;
+		// Marque une fenêtre « barre d'onglets masquée quand elle est SEULE dans sa
+		// feuille » (crée la meta au besoin). Réservé au panneau central (éditeur) :
+		// les autres (Terminal, Sortie, sidebars) gardent TOUJOURS leurs onglets.
+		NKENTSEU_NKGUI_API void DockWindowHideSingleTab(NkGuiContext &ctx, const char *windowTitle,
+														bool hide) noexcept;
+		// DockSpace qui remplit TOUT le viewport (responsive : suit la taille de la
+		// fenêtre OS → le dock + les fenêtres ancrées s'agrandissent avec elle).
+		// `topMargin` = hauteur réservée en haut (ex. barre de menus).
+		NKENTSEU_NKGUI_API void DockSpaceOverViewport(NkGuiContext &ctx, float32 topMargin = 0.f) noexcept;
+		// Bouton « + » d'onglet (opt-in : l'app pose `ctx.dockTabAddButton = true`).
+		// Après DockSpace, `DockTabAddRequest` renvoie la FEUILLE où « + » a été cliqué
+		// (-1 = aucun) ; l'app crée alors une fenêtre et l'ancre via `DockAddTab`.
+		// #3 : fusionne `winTitle` dans `hostTitle` PAR PROGRAMME → `hostTitle` devient
+		// un hôte de dock flottant à onglets (layout par défaut au boot).
+		NKENTSEU_NKGUI_API void DockWindowIntoWindow(NkGuiContext &ctx, const char *hostTitle,
+													 const char *winTitle) noexcept;
+		NKENTSEU_NKGUI_API int32 DockTabAddRequest(NkGuiContext &ctx) noexcept;
+		NKENTSEU_NKGUI_API void DockAddTab(NkGuiContext &ctx, const char *windowTitle, int32 node) noexcept;
+
+		// ── Zone défilable + ListBox ──────────────────────────────────────────
+		// Région à défilement VERTICAL : clippe son contenu à `rect`, gère la molette
+		// (survol) + une scrollbar draggable a droite, scroll persistant par `idStr`.
+		// L'app dessine ses widgets entre Begin/EndChild ; ce qui déborde défile.
+		// (v1 : un seul niveau, pas d'imbrication.) Brique du multi-ligne, longues listes…
+		// `horizontal=true` active aussi le défilement HORIZONTAL (scrollbar basse +
+		// Maj/molette horizontale), pour du contenu à largeur fixe plus large que la vue.
+		NKENTSEU_NKGUI_API bool BeginChild(NkGuiContext &ctx, const char *idStr, const NkRect &rect, bool border = true,
+										   bool horizontal = false) noexcept;
+		NKENTSEU_NKGUI_API void EndChild(NkGuiContext &ctx) noexcept;
+		// La largeur VISUELLE d'un séparateur redimensionnable, en pixels.
+		//
+		// ⚠️ UN SEUL NOMBRE, PARCE QUE DEUX ONT DÉJÀ DIVERGÉ. Le séparateur du
+		//    dock se peignait sur 4 px ; la poignée d'un tiroir ancré, sur 1.
+		//    Même fonction, même geste, deux épaisseurs — Rodolf, 28/09 : « le
+		//    séparateur à droite n'est toujours pas correct ». Tout bord
+		//    redimensionnable de l'écosystème lit cette valeur, et aucun ne la
+		//    réécrit. La zone de PRÉHENSION reste plus large que le trait (on
+		//    attrape 10 px, on en voit 4) : c'est délibéré, et c'est la même
+		//    marge des deux côtés.
+		NKENTSEU_NKGUI_API float32 NkGuiSplitterWidth() noexcept;
+		// Réserve une BANDE FIXE en haut de la zone défilable courante : elle ne
+		// défile pas, et le contenu commence dessous. C'est ce qui fait qu'une
+		// fenêtre garde son en-tête — donc sa poignée, donc la possibilité d'être
+		// détachée. Un en-tête dessiné avec `NextItemRect` part avec le contenu.
+		//
+		// ⚠️ DEUX APPELS : la bande se peint avec SON découpage, que la fin
+		//    remplace par celui du contenu. À poser juste après `Begin`/`BeginChild`.
+		//
+		//      NkRect bande;
+		//      if (NkGuiBandeFixeDebut(ctx, 34.f, bande)) { … ; NkGuiBandeFixeFin(ctx); }
+		//
+		// Rend `false` s'il n'y a aucun cadre, ou si la bande mange toute la zone.
+		NKENTSEU_NKGUI_API bool NkGuiBandeFixeDebut(NkGuiContext &ctx, float32 hauteur,
+													   NkRect &bandeOut) noexcept;
+		NKENTSEU_NKGUI_API void NkGuiBandeFixeFin(NkGuiContext &ctx) noexcept;
+		// L'ordonnée du BAS de la zone défilable courante, en coordonnées de
+		// CONTENU — ce qu'il faut pour qu'un panneau partage sa hauteur (« la
+		// liste prend tout ce qui reste ») sans que le fond recule quand on
+		// descend. Le bas ÉCRAN (`area.y + area.h`) ferait une boucle : il
+		// s'éloigne du curseur d'exactement le défilement, donc la borne de
+		// défilement suit le défilement et ne l'arrête jamais.
+		// Rend `false` s'il n'y a aucun cadre : sans cadre il n'y a pas de bas
+		// visible, et un chiffre inventé rendrait le montage indétectable.
+		// Mesuré par le banc b21 (CasDefilementFondMouvant).
+		NKENTSEU_NKGUI_API bool NkGuiBasVisible(NkGuiContext &ctx, float32 &basOut) noexcept;
+		// ListBox = cadre défilable ; l'app dessine ses Selectable()/SelectItem() dedans.
+		NKENTSEU_NKGUI_API bool BeginListBox(NkGuiContext &ctx, const char *idStr, const NkRect &rect) noexcept;
+		NKENTSEU_NKGUI_API void EndListBox(NkGuiContext &ctx) noexcept;
+
+		// ── Table (colonnes redimensionnables, zébrures, en-tête) ─────────────
+		// Idiome ImGui amélioré « à notre sauce » :
+		//   if (BeginTable(ctx,"t",3, Borders|RowBg|Resizable)) {
+		//       TableSetupColumn(ctx,"Nom",   0);     // 0 = colonne étirable
+		//       TableSetupColumn(ctx,"Type", 90);     // largeur fixe px
+		//       TableSetupColumn(ctx,"Taille",70);
+		//       TableHeadersRow(ctx);
+		//       for (…) { TableNextRow(ctx);
+		//                 TableNextColumn(ctx); Text(ctx,nom);
+		//                 TableNextColumn(ctx); Text(ctx,type);
+		//                 TableNextColumn(ctx); Text(ctx,taille); }
+		//       EndTable(ctx);
+		//   }
+		// AMÉLIORATIONS vs ImGui : colonnes redimensionnables PAR DÉFAUT (glisser les
+		// séparateurs d'en-tête, largeurs persistées par id) ; la table vit dans le
+		// LAYOUT courant (donc scrolle naturellement si placée dans un panneau/child).
+		// La table occupe toute la largeur du contenu au curseur. Tri = à venir.
+		NKENTSEU_NKGUI_API bool BeginTable(NkGuiContext &ctx, const char *idStr, int32 columns,
+										   NkGuiTableFlags flags = NkGuiTableFlags::Borders) noexcept;
+		// Définit une colonne (libellé + largeur souhaitée px ; <=0 = étirable). À
+		// appeler `columns` fois juste après BeginTable, avant TableHeadersRow.
+		NKENTSEU_NKGUI_API void TableSetupColumn(NkGuiContext &ctx, const char *label, float32 width = 0.f) noexcept;
+		// Dessine la ligne d'en-tête (libellés) + gère le redimensionnement des colonnes.
+		NKENTSEU_NKGUI_API void TableHeadersRow(NkGuiContext &ctx) noexcept;
+		// Démarre une nouvelle ligne (fond alterné si RowBg).
+		NKENTSEU_NKGUI_API void TableNextRow(NkGuiContext &ctx, float32 minHeight = 0.f) noexcept;
+		// Passe à la cellule suivante (revient à la 1re colonne de la ligne suivante
+		// si on était au bout). Ouvre la région de layout sur la cellule : les widgets
+		// dessinés ensuite remplissent la cellule. Retourne true (cellule visible).
+		NKENTSEU_NKGUI_API bool TableNextColumn(NkGuiContext &ctx) noexcept;
+		// Positionne explicitement sur la colonne `n` de la ligne courante.
+		NKENTSEU_NKGUI_API bool TableSetColumnIndex(NkGuiContext &ctx, int32 n) noexcept;
+		NKENTSEU_NKGUI_API void EndTable(NkGuiContext &ctx) noexcept;
+		// Tri (flag Sortable) : renvoie la colonne triée (`*outCol`) + le sens (`*outAscending`),
+		// et true si un tri est actif (sinon col=-1). À appeler APRÈS TableHeadersRow ; l'app
+		// trie ses données puis dessine les lignes dans l'ordre. La sélection est persistée.
+		NKENTSEU_NKGUI_API bool TableGetSortColumn(NkGuiContext &ctx, int32 *outCol, bool *outAscending) noexcept;
+		// Contenu de cellule TEXTE, OPTIONNELLEMENT éditable par double-clic. À appeler
+		// dans une cellule (après TableNextColumn). `idStr` = id STABLE et unique par
+		// cellule (≠ texte édité). `editable=false` → simple affichage centré ; `true` →
+		// survol surligné + double-clic = éditeur inline (TextEditField, Entrée valide,
+		// Échap annule). Retourne true quand l'édition est validée (valeur modifiée).
+		NKENTSEU_NKGUI_API bool TableCellText(NkGuiContext &ctx, const char *idStr, char *buf, int32 bufSize,
+											  bool editable = false) noexcept;
+
+		// ── Popups / overlay ──────────────────────────────────────────────────
+		// Liste déroulante. `preview` = texte affiché dans le champ ; `itemCount` =
+		// nb d'éléments (dimensionne le popup). Si ouvert, retourne true : l'app
+		// dessine ses Selectable() à l'intérieur (clic → fermer via ctx.ClosePopup())
+		// puis appelle EndCombo. Le popup est rendu DANS LA COUCHE OVERLAY (au-dessus).
+		// heightOverride > 0 : hauteur du champ imposee (sinon ItemHeight standard).
+		NKENTSEU_NKGUI_API bool BeginCombo(NkGuiContext &ctx, const char *label, const char *preview,
+										   int32 itemCount, float32 heightOverride = 0.f) noexcept;
+		NKENTSEU_NKGUI_API void EndCombo(NkGuiContext &ctx) noexcept;
+		// Primitif de popup générique (fermé au clic-dehors / Échap). Ouvre avec
+		// ctx.OpenPopup(ctx.GetId(idStr)). À refermer par EndPopup si true.
+		// `rect` = où le popup se dessine (couche overlay) ; `ancre` = le widget
+		// qui l'a ouvert (un clic dedans ne le referme pas). Retourne true tant
+		// qu'il est ouvert : l'app dessine SES widgets dedans, puis EndPopup.
+		NKENTSEU_NKGUI_API bool BeginPopup(NkGuiContext &ctx, const char *idStr, const NkRect &rect,
+										   const NkRect &ancre) noexcept;
+		// La meme porte, par ID deja calcule : indispensable quand celui qui OUVRE
+		// et celui qui DESSINE ne sont pas dans la meme pile d'identites (un
+		// panneau ouvre, le crochet d'overlay dessine).
+		NKENTSEU_NKGUI_API bool BeginPopupId(NkGuiContext &ctx, NkGuiId id, const NkRect &rect,
+											 const NkRect &ancre) noexcept;
+		NKENTSEU_NKGUI_API void EndPopup(NkGuiContext &ctx) noexcept;
+
+		// ── Menus (barre + sous-menus imbriqués + contextuel) ─────────────────
+		// Barre de menus horizontale (titres via BeginMenu). À fermer par EndMenuBar.
+		NKENTSEU_NKGUI_API bool BeginMenuBar(NkGuiContext &ctx, const NkRect &rect) noexcept;
+		/// Même bande, mais les TITRES s'arrêtent à `limiteTitres` (x absolu) : ce
+		/// qui ne tient plus descend sous un bouton « … » déroulant, sous-menus
+		/// compris.
+		///
+		/// 🔴 POURQUOI DEUX NOMBRES PLUTÔT QU'UNE BANDE PLUS COURTE. Le `rect`
+		///    peint le FOND (il doit couvrir toute la bande, sinon un trou se voit
+		///    au milieu du bandeau) ; `limiteTitres` dit jusqu'où les titres ont le
+		///    DROIT d'aller (avant le titre du document, centré par l'hôte). Une
+		///    bande raccourcie confondrait les deux et laisserait le fond troué.
+		///
+		/// ⚠️ La limite est bornée des deux côtés : jamais au-delà de la bande,
+		///    jamais en deçà de quoi poser le « … » — une limite trop courte
+		///    rendrait les menus INATTEIGNABLES, ce qui est pire que serré.
+		NKENTSEU_NKGUI_API bool BeginMenuBar(NkGuiContext &ctx, const NkRect &rect,
+											 float32 limiteTitres) noexcept;
+		/// La politique de dépassement, à poser JUSTE APRÈS `BeginMenuBar`.
+		///
+		/// `limiteTitres` : x absolu, TOUJOURS une position — il n'y a pas de
+		///                  sentinelle. Qui ne veut pas la changer passe
+		///                  `ctx.menuBarLimite`. (Un « ≤ 0 = ne change rien »
+		///                  avalait en silence les limites légitimement
+		///                  négatives : *une sentinelle n'est pas une position*.)
+		/// `maxTitres`    : nombre de titres tolérés dans la bande (-1 = pas de
+		///                  plafond ; 0 est ramené à 1 — une bande réduite à un
+		///                  seul « … » ne dirait plus rien de l'application).
+		///
+		/// 🔴 DEUX RÈGLES, PAS UNE, ET LA SECONDE N'EST PAS UN DOUBLON : sur un
+		///    grand écran quinze menus TIENNENT en largeur et restent illisibles.
+		///    La largeur protège la mise en page, le nombre protège la lecture.
+		///
+		/// ⚠️ ELLE SE REDÉCLARE À CHAQUE BANDE. `BeginMenuBar` la remet à « pas de
+		///    plafond » : une politique rémanente s'appliquerait à la barre d'une
+		///    autre fenêtre sans que rien ne le dise.
+		///
+		/// Les documents `.nkgui` n'appellent pas ceci : leur nœud `MenuBar` porte
+		/// les clés `maxMenus` / `reserveDroite`, et le monteur les traduit ici.
+		NKENTSEU_NKGUI_API void NkGuiMenuBarPolitique(NkGuiContext &ctx, float32 limiteTitres,
+													  int32 maxTitres) noexcept;
+		NKENTSEU_NKGUI_API void EndMenuBar(NkGuiContext &ctx) noexcept;
+		// Menu déroulant. Appelé dans une MenuBar (titre) OU dans un autre menu
+		// (SOUS-MENU, flyout à droite) — imbrication à profondeur arbitraire. Si
+		// ouvert, retourne true : l'app dessine MenuItem()/BeginMenu()/Separator()
+		// ou TOUT widget (graphismes custom) à l'intérieur, puis appelle EndMenu.
+		NKENTSEU_NKGUI_API bool BeginMenu(NkGuiContext &ctx, const char *label) noexcept;
+		NKENTSEU_NKGUI_API void EndMenu(NkGuiContext &ctx) noexcept;
+		// Élément de menu cliquable (+ raccourci affiché à droite, optionnel).
+		// Retourne true au clic (et ferme la chaîne de menus).
+		// `checked` : l'entrée porte une COCHE à droite (état booléen). ⚠️ Une entrée
+		// qui bascule un état DOIT porter une coche plutôt qu'un libellé qui
+		// s'inverse — « Afficher la grille » devenant « Masquer la grille » oblige à
+		// déduire l'état courant du libellé proposé, et on se trompe une fois sur
+		// deux. Ajouté en DERNIER avec une valeur par défaut : aucun appelant
+		// existant ne bouge, et le dessin est inchangé tant que `checked` est faux.
+		NKENTSEU_NKGUI_API bool MenuItem(NkGuiContext &ctx, const char *label, const char *shortcut = nullptr,
+										 bool enabled = true, bool checked = false) noexcept;
+		// Menu CONTEXTUEL (clic droit) : l'app appelle
+		// ctx.OpenPopupAt(ctx.GetId(idStr), mousePos) au clic droit, puis dessine
+		// le contenu entre BeginPopupMenu/EndPopupMenu (mêmes MenuItem/BeginMenu).
+		NKENTSEU_NKGUI_API bool BeginPopupMenu(NkGuiContext &ctx, const char *idStr) noexcept;
+		NKENTSEU_NKGUI_API void EndPopupMenu(NkGuiContext &ctx) noexcept;
+
+		// Infobulle au survol (couche overlay, au-dessus de tout). À appeler quand le
+		// dernier widget est survolé : `if (ctx.IsItemHovered()) SetTooltip(ctx, "…");`.
+		NKENTSEU_NKGUI_API void SetTooltip(NkGuiContext &ctx, const char *text) noexcept;
+
+	} // namespace nkgui
+} // namespace nkentseu

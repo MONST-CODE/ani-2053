@@ -1,0 +1,807 @@
+#pragma once
+// -----------------------------------------------------------------------------
+// @File    NkGuiContext.h
+// @Author  TEUGUIA TADJUIDJE Rodolf Séderis — Rihen
+// AUTEUR : TEUGUIA TADJUIDJE Rodolf Séderis — Rihen
+// @Brief   Contexte NKGui — état par instance (IDs, thème, input, draw list,
+//          machine à états d'interaction). Phase 2.
+// @License Proprietary - All Rights Reserved (see LICENSE)
+// -----------------------------------------------------------------------------
+
+#include "NKGui/NkGuiExport.h"
+#include "NKGui/Core/NkGuiTypes.h"
+#include "NKGui/Core/NkGuiInput.h"
+#include "NKGui/Core/NkGuiDrawList.h"
+#include "NKGui/Core/NkGuiIntrospect.h"
+#include <cstdlib> // getenv : la mutation de banc de la garde des sentinelles
+
+namespace nkentseu {
+	namespace nkgui {
+
+		struct NkGuiFont; // police par défaut (Core/NkGuiFont.h)
+
+		// Version du framework (séparée de la version moteur).
+		struct NKENTSEU_NKGUI_CLASS_EXPORT NkGuiVersion {
+				static constexpr int32 Major = 0;
+				static constexpr int32 Minor = 1;
+				static constexpr int32 Patch = 0;
+				static const char *String() noexcept; // "0.1.0"
+		};
+
+		// Thème minimal (Phase 2). Étendu en Phase 8.
+		struct NKENTSEU_NKGUI_CLASS_EXPORT NkGuiTheme {
+				NkColor bgPrimary = {26, 29, 36, 255};
+				NkColor panel = {38, 42, 52, 255};
+				NkColor header = {46, 51, 63, 255};
+				NkColor button = {58, 64, 80, 255};
+				NkColor buttonHover = {78, 92, 120, 255};
+				NkColor buttonActive = {96, 150, 230, 255};
+				NkColor border = {86, 94, 112, 255};
+				NkColor text = {230, 232, 240, 255};
+				NkColor textDisabled = {120, 124, 134, 255}; ///< texte grisé (désactivé)
+				NkColor selection = {64, 110, 200, 235};	 ///< fond d'élément sélectionné
+				NkColor accent = {96, 165, 250, 255};
+				NkColor track = {30, 34, 43, 255}; ///< fond de slider
+				// Onglets de dock — distincts du fond de la barre (personnalisables).
+				NkColor tabBar = {22, 25, 31, 255};	   ///< fond de la BARRE d'onglets
+				NkColor tab = {40, 45, 56, 255};	   ///< onglet inactif (≠ barre)
+				NkColor tabHover = {58, 64, 80, 255};  ///< onglet survolé
+				NkColor tabActive = {52, 58, 72, 255}; ///< onglet actif
+				// ── Jetons AJOUTES le 2026-08-18 ────────────────────────────────
+				// Chacun comble un role que les applications ecrivaient EN DUR faute
+				// de jeton (mesure : 426 couleurs en dur chez les consommateurs NKGui,
+				// 56,6 % de couverture seulement). Le nombre entre crochets est le
+				// nombre d'occurrences en dur qui motivait l'ajout.
+				NkColor onAccent = {255, 255, 255, 255};	 ///< [48, 6 apps] texte/icone POSE sur accent ou selection
+				NkColor card = {44, 49, 60, 255};			 ///< [15] fond de carte/vignette (≠ panel)
+				NkColor rowHover = {52, 58, 70, 255};		 ///< [10] survol d'une ligne de liste/arbre
+				NkColor textMuted = {130, 138, 148, 255};	 ///< [4] texte secondaire (chemin, legende)
+				NkColor separator = {60, 66, 74, 255};		 ///< [9] filet de separation
+				NkColor scrollbar = {80, 88, 98, 255};		 ///< [4] pouce de barre de defilement
+				NkColor scrollbarHover = {120, 130, 142, 255}; ///< survol du pouce
+				NkColor scrim = {0, 0, 0, 160};				 ///< [33] voile sous une modale
+				NkColor shadow = {0, 0, 0, 90};				 ///< ombre portee
+				NkColor success = {106, 190, 120, 255};		 ///< etat : reussite
+				NkColor warning = {224, 176, 90, 255};		 ///< etat : avertissement
+				NkColor danger = {232, 106, 106, 255};		 ///< [12] etat : erreur/suppression
+				NkColor info = {88, 166, 255, 255};			 ///< [7] etat : information
+
+				float32 rounding = 5.f;
+				float32 roundingSmall = 4.f;  ///< cases a cocher, pastilles
+				float32 roundingLarge = 12.f; ///< cartes, panneaux flottants
+				float32 borderThickness = 1.f; ///< epaisseur par defaut d'un contour
+				float32 framePadX = 10.f; ///< padding horizontal interne d'un widget
+				float32 framePadY = 6.f;  ///< padding vertical interne d'un widget
+
+				// ── Convention d'onglet ACTIF (ajout 2026-08-31, OPT-IN) ─────────
+				// Faux (defaut) : actif = `panel` sur barre `tabBar` — l'historique,
+				// et NKCode ne bouge pas d'un octet. Vrai : actif = `bgPrimary` sur
+				// barre `panel` (convention V2 des maquettes Banani de NkUIDesign :
+				// l'onglet actif rejoint le FOND de la zone document). En FIN de
+				// struct, apres les champs enumeres par NkGuiThemeTokens — les
+				// offsets de la table ne bougent pas.
+				bool tabActiveIsWindowBg = false;
+		};
+
+		// ── DESCRIPTION DES JETONS (pour un futur NKUIEditor) ──────────────────
+		// Regle du depot : un composant doit pouvoir etre DECRIT, pas seulement
+		// appele — sinon aucun editeur ne peut le composer ni le sauver. Premier
+		// etage de cette description : le theme s'ENUMERE. Un editeur (ou un
+		// serialiseur, ou un selecteur de theme) parcourt la table sans connaitre
+		// un seul nom de champ a la compilation.
+		enum class NkGuiTokenType : uint8 {
+			Color = 0, ///< NkColor
+			Scalar	   ///< float32
+		};
+
+		struct NkGuiTokenDesc {
+				const char *name;  ///< nom stable du jeton ("accent", "rounding"…)
+				const char *group; ///< regroupement pour l'interface ("surface", "texte", "etat", "geometrie")
+				NkGuiTokenType type = NkGuiTokenType::Color;
+				uint16 offset = 0; ///< decalage dans NkGuiTheme (offsetof)
+		};
+
+		/// Table complete des jetons. `count` recoit le nombre d'entrees.
+		/// La table est statique et vit aussi longtemps que le programme.
+		NKENTSEU_NKGUI_API const NkGuiTokenDesc *NkGuiThemeTokens(int32 *count) noexcept;
+		/// Acces par NOM. Renvoie nullptr si le nom est inconnu ou du mauvais type.
+		NKENTSEU_NKGUI_API NkColor *NkGuiThemeColor(NkGuiTheme &theme, const char *name) noexcept;
+		NKENTSEU_NKGUI_API float32 *NkGuiThemeScalar(NkGuiTheme &theme, const char *name) noexcept;
+
+		// Theme de COLORATION SYNTAXIQUE (langages) — partage avec l'editeur de code.
+		// Defauts type VS Code Dark+. Modifiable via Preferences > Langages.
+		struct NKENTSEU_NKGUI_CLASS_EXPORT NkGuiSyntax {
+				NkColor text = {212, 212, 212, 255};
+				NkColor keyword = {86, 156, 214, 255};
+				NkColor type = {78, 201, 176, 255};
+				NkColor string = {206, 145, 120, 255};
+				NkColor comment = {106, 153, 85, 255};
+				NkColor number = {181, 206, 168, 255};
+				NkColor preproc = {197, 134, 192, 255};
+				NkColor heading = {78, 201, 176, 255};	 // titres Markdown
+				NkColor mdcode = {206, 145, 120, 255};	 // code Markdown
+				NkColor function = {225, 205, 120, 255}; // appels / définitions de fonction (jaune franc)
+				NkColor constant = {79, 193, 255, 255};	 // MAJUSCULES / true / false / null / None…
+				NkColor oper = {200, 200, 200, 255};	 // opérateurs + - * / = < > & | etc.
+		};
+
+		// État de mise en page (curseur immédiat). Chaque widget « auto » prend son
+		// rect via NextItemRect, qui avance le curseur (nouvelle ligne par défaut ;
+		// SameLine() replace à droite de l'item précédent).
+		struct NKENTSEU_NKGUI_CLASS_EXPORT NkGuiLayout {
+				NkRect region = {0.f, 0.f, 0.f, 0.f};
+				NkVec2 cursor = {0.f, 0.f};
+				float32 lineStartX = 0.f;
+				float32 curLineH = 0.f;
+				NkRect prevItem = {0.f, 0.f, 0.f, 0.f};
+				float32 maxX = 0.f; ///< extrémité droite du contenu (scroll horizontal)
+				float32 maxY = 0.f; ///< extrémité basse du contenu (taille des conteneurs)
+				float32 padding = 10.f;
+				float32 itemSpacingX = 8.f;
+				float32 itemSpacingY = 6.f;
+				// ── Flux de mise en page (conteneurs) ──
+				int32 flow = 0;			///< 0=vertical (défaut) · 1=horizontal (HBox) · 2=grille · 3=pile (Stack)
+				int32 gridCols = 0;		///< Grid : nombre de colonnes
+				int32 gridIdx = 0;		///< Grid : colonne courante
+				float32 gridColW = 0.f; ///< Grid : largeur d'une colonne
+				float32 stackW = 0.f;	///< Stack : largeur de la boîte
+				float32 stackH = 0.f;	///< Stack : hauteur de la boîte
+				int32 stackAnchor = 0;	///< Stack : 0=HG 1=HC 2=HD 3=CG 4=C 5=CD 6=BG 7=BC 8=BD
+				// ── Flex (rangée/colonne à poids) : cellules pré-calculées, distribution single-pass ──
+				float32 flexSlots[12] = {}; ///< tailles px des cellules (axe principal), calculées au Begin
+				int32 flexCount = 0;		///< nombre de cellules
+				int32 flexIdx = 0;			///< cellule courante
+				float32 flexCross = 0.f;	///< taille axe transverse (hauteur de rangée / largeur de colonne)
+		};
+
+		// État de défilement persistant d'une zone (par id) : offset {x,y} + présence
+		// des barres la frame précédente (pour réserver les gouttières sans osciller).
+		struct NkGuiScrollState {
+				float32 x = 0.f, y = 0.f;
+				float32 maxX = 0.f, maxY = 0.f; // bornes de la frame précédente (anti-overscroll)
+				bool barV = false, barH = false;
+		};
+
+		// Frame de zone défilable empilée (BeginChild/BeginPanel). Permet l'imbrication
+		// (panneau scrollable contenant une ListBox, etc.).
+		struct NkGuiChildFrame {
+				NkGuiId id = NKGUI_ID_NONE;
+				NkRect area = {0.f, 0.f, 0.f, 0.f}; // zone de contenu (panel: sous l'en-tête)
+				float32 contentTop = 0.f;
+				float32 contentLeft = 0.f;
+				float32 scrollX = 0.f;
+				float32 scrollY = 0.f;
+				bool horizontal = false;
+				/// Cadre défilable SANS barre visible (NkGuiWindowFlags::NoScrollbar) :
+				/// molette et bornage restent, seuls piste/flèches/pouce ne se
+				/// dessinent pas — pour un panneau qui porte ses propres ascenseurs
+				/// et où la grande barre externe faisait doublon (NkUIDesign, 01/09).
+				bool sansBarre = false;
+				/// Hauteur de la BANDE FIXE en cours de peinture (0 = aucune).
+				/// Posée par `NkGuiBandeFixeDebut`, consommée par sa fin : c'est
+				/// ce qui permet à la fin de savoir de combien rétrécir la zone
+				/// défilable sans que l'appelant redonne le chiffre — un chiffre
+				/// redonné est un chiffre qui peut différer du premier.
+				float32 bandeHaute = 0.f;
+				/// La marge que la disposition avait posée d'elle-même avant le
+				/// premier élément, retenue à l'ouverture de la bande et remise
+				/// à sa fermeture.
+				///
+				/// ⚠️ ON LA RETIENT, ON NE L'ÉCRIT PAS. Une première version
+				///    remettait le curseur sur `contentTop` tout court : la
+				///    première ligne se collait au bas de l'en-tête, alors que
+				///    sans bande elle respirait de 10 px. Coder ce 10 ici en
+				///    aurait fait une seconde vérité, fausse le jour où la
+				///    disposition change de marge.
+				float32 bandeMarge = 0.f;
+				NkGuiLayout savedLayout;
+		};
+
+		// Largeurs de colonnes redimensionnées par l'utilisateur (px ; 0 = non touché
+		// → largeur de TableSetupColumn). Persistant par table.
+		static constexpr int32 NkGuiTableMaxCols = 16;
+
+		struct NkGuiTableW {
+				float32 w[NkGuiTableMaxCols] = {}; ///< largeurs de colonnes (resize interne)
+				float32 total = 0.f;			   ///< largeur globale override (0 = auto-remplir) — ResizableOuter
+				int32 sortCol = -1;				   ///< colonne triée (-1 = aucune) — Sortable
+				bool sortAsc = true;			   ///< sens du tri
+		};
+
+		// Contexte principal. Explicite (multi-instance) ; un « contexte courant »
+		// permet l'API immédiate terse (nkgui::Button(...) sans passer ctx).
+		struct NKENTSEU_NKGUI_CLASS_EXPORT NkGuiContext {
+				int32 viewW = 0;
+				int32 viewH = 0;
+				float32 scale = 1.f; ///< facteur d'échelle UI (DPI/HiDPI) — voir SetUiScale/Scaled
+				NkGuiTheme theme;
+				NkGuiSyntax syntax; ///< couleurs de coloration syntaxique (langages)
+				NkGuiInput input;
+				// ── ENTREE REELLE D'UNE MODALE DESSINEE DEPUIS UN PANNEAU (2026-09-24) ──
+				// Quand une modale a reserve la saisie (NkGuiInput::ReserverSaisie), l'hote
+				// (NkEditorShell) vide `input` pendant le passage des PANNEAUX pour qu'aucun
+				// ne reagisse sous le dialogue. Mais une modale dessinee DEPUIS un panneau
+				// (la confirmation de fermeture d'onglet de NKCode) se trouvait privee de
+				// ses propres clics : boutons visibles, aucun ne repondait (Rodolf,
+				// 2026-09-24). L'hote depose ici l'entree reelle le temps de ce passage ;
+				// les modales (NkModalDraw, NkModalFrameDraw) la lisent, les panneaux non.
+				// Hors de ce passage : `inputModaleValide` est faux et tout lit `input`.
+				NkGuiInput inputModale;
+				bool inputModaleValide = false;
+				/// L'entree que doit lire une MODALE : la reelle si l'hote l'a deposee.
+				NkGuiInput &InputModale() noexcept { return inputModaleValide ? inputModale : input; }
+				NkGuiDrawList dl;		 ///< couche principale (rendue en 1er)
+				NkGuiDrawList dlOverlay; ///< couche popups/overlay (rendue PAR-DESSUS)
+				NkGuiLayout layout;
+
+				// ── PLACEMENT EXPLICITE (2026-08-18) ──────────────────────────────
+				// Mesure : sur 114 fonctions declarees dans NkGuiWidgets.h, **12
+				// acceptent un NkRect et 102 se placent elles-memes** via
+				// NextItemRect. Une interface pilotee par rectangles (NK3DModeler)
+				// ne pouvait donc appeler que 12 d'entre elles — pas par
+				// indiscipline, faute de moyen. Ces deux champs sont ce moyen : un
+				// rectangle POSE pour le PROCHAIN widget seulement, consomme par
+				// NextItemRect. Voir SetNextItemRect.
+				NkRect nextItemRect = {0.f, 0.f, 0.f, 0.f};
+				bool nextItemRectSet = false;
+				NkGuiFont *font = nullptr;	   ///< police d'interface par défaut (posée par l'app)
+				NkGuiFont *codeFont = nullptr; ///< police monospace pour le code/terminal (optionnelle ; sinon = font)
+
+				// PILE de popups ouverts (chaîne menu → sous-menu → sous-sous-menu…).
+				// `curPopupLevel` = niveau en cours de DESSIN (-1 = couche principale) ;
+				// la liste active est l'overlay dès qu'on dessine un popup.
+				static constexpr int32 PopupMax = 8;
+				NkGuiId popupStack[PopupMax] = {}; ///< id du popup à chaque niveau
+				NkRect popupRects[PopupMax] = {};  ///< zone de chaque niveau
+				NkGuiLayout popupSaved[PopupMax];  ///< layout sauvegardé par niveau
+				int32 popupDepth = 0;			   ///< nb de popups ouverts
+				/// Nombre de dialogues MODAUX deja dessines dans la frame courante.
+				/// Sert a n'assombrir le fond QU'UNE FOIS : une modale ouverte
+				/// au-dessus d'une autre doit laisser voir celle du dessous, pas
+				/// l'enfouir sous un second voile (regle de Rihen, 13 aout 2026).
+				/// Remis a zero au debut de chaque frame, comme les draw-lists.
+				int32 modalDepth = 0;
+				int32 curPopupLevel = -1;		   ///< niveau dessiné (-1 = principale)
+				int32 comboNav = 0;				   ///< item surligné au clavier dans un combo ouvert
+				bool comboEnter = false;		   ///< Entrée pressée dans le combo (consommé par l'appelant)
+				// Hook : actions de panneau dessinées sur la BARRE D'ONGLETS du dock (à
+				// droite). Appelé par DockRenderNode après les onglets, avec le rect de
+				// la barre + la fenêtre active. Permet "+ / combo" sur la ligne d'onglets.
+				void *dockHeaderUser = nullptr;
+				void (*dockHeaderFn)(NkGuiContext &, const NkRect &, NkGuiId, void *) = nullptr;
+				NkVec2 popupPos = {0.f, 0.f};			   ///< ancrage (menu contextuel)
+				NkRect popupAnchor = {0.f, 0.f, 0.f, 0.f}; ///< zone déclencheur (ne ferme pas)
+
+				// ── ROUTEUR D'OCCLUSION UNIFIÉ (surfaces flottantes « maison ») ─────
+				// PROBLÈME DE FOND résolu ici : les overlays applicatifs (modals, palettes,
+				// popovers, peek…) faisaient des hit-tests BRUTS (rect + mouseClicked) qui
+				// ignoraient ce qui est dessiné AU-DESSUS d'eux → traversées de clics,
+				// boutons inertes, consommations manuelles fragiles dupliquées partout.
+				// PRINCIPE : chaque surface flottante déclare son rect + sa couche CHAQUE
+				// frame (PushOcclusion) pendant son dessin ; tous les hit-tests passent par
+				// InputHits/ClickIn qui refusent un point recouvert par une couche PLUS
+				// HAUTE que celle en cours de dessin (curInputLayer). Comme hotIdPrev, la
+				// liste lue est celle de la FRAME PRÉCÉDENTE (stable pour toute la frame,
+				// indépendante de l'ordre de dessin des panneaux). Couches conseillées :
+				// 0 fond/panneaux · 50 menus/palettes/popovers · 100 modals · 200 debug.
+				static constexpr int32 OcclMax = 16;
+				NkRect occlRects[OcclMax] = {};	   ///< frame PRÉCÉDENTE (lecture, stable)
+				int32 occlLayers[OcclMax] = {};
+				int32 occlCount = 0;
+				NkRect occlRectsNew[OcclMax] = {}; ///< frame COURANTE (écriture)
+				int32 occlLayersNew[OcclMax] = {};
+				int32 occlCountNew = 0;
+				int32 curInputLayer = 0; ///< couche de la surface en cours de dessin
+
+				// Déclare une surface flottante pour CETTE frame (lue à la suivante).
+				void PushOcclusion(const NkRect &r, int32 layer) noexcept {
+					if (occlCountNew < OcclMax) {
+						occlRectsNew[occlCountNew] = r;
+						occlLayersNew[occlCountNew] = layer;
+						++occlCountNew;
+					}
+				}
+
+				// Le point est-il ATTEIGNABLE par la surface de couche `curInputLayer` ?
+				// (refusé si un rect d'une couche STRICTEMENT supérieure le recouvre)
+				bool PointReachable(const NkVec2 &p) const noexcept {
+					for (int32 i = 0; i < occlCount; ++i)
+						if (occlLayers[i] > curInputLayer && NkGuiRectContains(occlRects[i], p))
+							return false;
+					return true;
+				}
+
+				// Hit-test UNIFIÉ : souris dans `r` ET non recouverte par une couche
+				// supérieure. À utiliser PARTOUT à la place de NkGuiRectContains(mousePos).
+				bool InputHits(const NkRect &r) const noexcept {
+					return NkGuiRectContains(r, input.mousePos) && PointReachable(input.mousePos);
+				}
+
+				// Clic gauche UNIFIÉ dans `r` (occlusion respectée).
+				bool ClickIn(const NkRect &r) const noexcept {
+					return input.mouseClicked[0] && InputHits(r);
+				}
+
+				// RAII : fixe la couche d'input pendant le dessin d'une surface flottante.
+				struct NkInputLayerScope {
+						NkGuiContext *c;
+						int32 saved;
+						NkInputLayerScope(NkGuiContext &ctx, int32 layer) : c(&ctx), saved(ctx.curInputLayer) {
+							ctx.curInputLayer = layer;
+						}
+						~NkInputLayerScope() {
+							c->curInputLayer = saved;
+						}
+				};
+
+				// ── Fenêtres flottantes (Begin/End) ───────────────────────────────
+				// Chaque fenêtre dessine dans SA draw-list (pool `winDL`), fusionnées dans
+				// `dl` triées par z-order à EndFrame → recouvrement correct + passage devant.
+				static constexpr int32 WinMax = 32;
+				NkGuiDrawList winDL[WinMax];			 ///< pool de draw-lists (1 par fenêtre/frame)
+				int32 winMeta[WinMax] = {};				 ///< index meta de la fenêtre frame k
+				int32 winZ[WinMax] = {};				 ///< z-order de la fenêtre frame k (tri)
+				int32 winCount = 0;						 ///< fenêtres soumises cette frame
+				int32 curWindow = -1;					 ///< fenêtre courante (= index pool), -1 = aucune
+				NkGuiId curWindowId = NKGUI_ID_NONE;	 ///< id de la fenêtre courante
+				NkGuiLayout winSavedLayout;				 ///< layout sauvegardé hors-fenêtre
+				NkVector<NkGuiWindowMeta> windowMeta;	 ///< état persistant par fenêtre
+				NkGuiId hoveredWindowId = NKGUI_ID_NONE; ///< fenêtre au-dessus sous le curseur (frame préc.)
+				int32 windowZTop = 0;					 ///< compteur de z-order (passage devant)
+				NkVec2 winDragOff = {0.f, 0.f};			 ///< offset souris→origine pendant le déplacement
+				bool curWindowDocked = false;			 ///< la fenêtre courante est-elle ancrée ?
+				// SetNextWindowPos/Size : appliqués à la CRÉATION de la prochaine fenêtre (FirstUseEver).
+				bool hasNextPos = false;
+				bool hasNextSize = false;
+				NkVec2 nextPos = {0.f, 0.f};
+				NkVec2 nextSize = {0.f, 0.f};
+
+				// ── Docking (arbre de nœuds) ───────────────────────────────────────
+				NkVector<NkGuiDockNode> dockNodes;
+				int32 dockRoot = -1; ///< racine de l'arbre (-1 = pas de dockspace)
+				NkGuiId dockSpaceId = NKGUI_ID_NONE;
+				NkRect dockSpaceRect = {0.f, 0.f, 0.f, 0.f};
+				NkGuiId movingWindowId = NKGUI_ID_NONE; ///< fenêtre flottante dont le titre est draggé (→ dock)
+				bool windowDockingEnabled =
+					false; ///< OPT-IN : droper une fenêtre sur une AUTRE flottante → hôte d'onglets (#3)
+				int32 dockTargetNode = -1;	   ///< feuille visée pendant le drag
+				int32 dockTargetZone = -1;	   ///< 0 centre, 1 G, 2 D, 3 H, 4 B
+				bool dockTabAddButton = false; ///< l'app active le bouton « + » sur les barres d'onglets
+				bool dockHideSingleTab =
+					false; ///< masque la barre d'onglets d'un nœud à 1 seul panneau (façon VSCode/IDE)
+
+				// Modale applicative : l'app (ex. NKCode) leve ce flag tant qu'un dialogue
+				// modal (creation de projet, proprietes...) est ouvert. Le shell masque
+				// alors l'input du corps (panneaux) au profit de l'overlay.
+				// ⚠️ (R17, 14/09) DECLARATION PAR IMAGE : NkEditorShell le remet a faux en
+				//    debut d'image et lit aussi la declaration de l'image precedente. A
+				//    reposer a CHAQUE image tant que le dialogue est ouvert. L'ancien contrat
+				//    (« mis a true a l'ouverture, false a la fermeture -- le shell ne le reset
+				//    pas ») a laisse trois sources de NKUIDesign masquer le corps pour toujours.
+				//    NKGui lui-meme ne lit pas ce drapeau.
+				bool appModal = false;
+
+				// Ecran plein cadre applicatif : quand leve, le shell remplace le corps
+				// (barre d'outils + panneaux) par l'ecran de demarrage de l'app (launcher).
+				// App-gere (true tant que le launcher remplace l'editeur).
+				bool appFullScreen = false;
+
+				// Hauteur REELLE de la barre de titre (posee par le shell chaque frame) :
+				// l'ecran de demarrage doit commencer en dessous, sinon il la recouvre.
+				float32 titleBarH = 0.f;
+
+				// Presse-papiers : cable par l'app (la fenetre OS). Decouple de NKWindow
+				// via void* + NkString. Les widgets appellent GetClipboard/SetClipboard.
+				void *clipboardUser = nullptr;
+				void (*clipboardGetFn)(void *, NkString &) = nullptr;
+				void (*clipboardSetFn)(void *, const char *) = nullptr;
+
+				/// (Q9) L'IMAGE du presse-papiers (un bitmap copie), fournie par l'hote :
+				/// RGBA 8 bits, ligne par ligne, du haut vers le bas. Faux = pas
+				/// d'image, ou plateforme qui ne sait pas la lire (`motif` le dit).
+				bool (*clipboardImageFn)(void *, NkVector<uint8> &rgba, int32 &w, int32 &h, NkString &motif) = nullptr;
+				bool GetClipboardImage(NkVector<uint8> &rgba, int32 &w, int32 &h, NkString &motif) const {
+					if (!clipboardImageFn) {
+						motif = NkString("l'application ne relie pas le presse-papiers image");
+						return false;
+					}
+					return clipboardImageFn(clipboardUser, rgba, w, h, motif);
+				}
+				NkString GetClipboard() const {
+					NkString s;
+					if (clipboardGetFn)
+						clipboardGetFn(clipboardUser, s);
+					return s;
+				}
+
+				void SetClipboard(const char *t) {
+					if (clipboardSetFn)
+						clipboardSetFn(clipboardUser, t);
+				}
+
+				int32 dockTabAddNode = -1; ///< feuille où « + » a été cliqué (lu par l'app après DockSpace)
+				NkGuiId dockOverflowPopup = NKGUI_ID_NONE; ///< popup « onglets cachés » ouvert (overflow)
+				int32 dockOverflowNode = -1;			   ///< feuille dont l'overflow est ouvert
+				NkVec2 dockOverflowPos = {0.f, 0.f};
+
+				NkGuiDrawList &DL() noexcept {
+					if (curPopupLevel >= 0 || overlayDepth > 0)
+						return dlOverlay; // popup / couche overlay forcée
+					return curWindow >= 0 ? winDL[curWindow] : dl;
+				}
+
+				// Menus : barre horizontale (curseur x) + auto-dimensionnement des popups
+				// de menu (largeur/hauteur mesurées une frame, appliquées la suivante).
+				NkRect menuBarRect = {0.f, 0.f, 0.f, 0.f};
+				float32 menuBarX = 0.f;
+				NkVector<NkGuiId> menuKeys; // id → taille mesurée
+				NkVector<NkVec2> menuSizes;
+				// Mesure du menu en cours, PAR NIVEAU (sous-menus imbriqués).
+				NkGuiId menuMeasureId[PopupMax] = {};
+				float32 menuMeasureW[PopupMax] = {};
+				float32 menuMeasureH[PopupMax] = {};
+
+				// ── LE DÉPASSEMENT DE LA BARRE DE MENUS (2026-09-28) ─────────────
+				//  Rodolf : « si le menu est touffu à partir d'un niveau ou nombre
+				//  de menus on devrait avoir un bouton "…" ».
+				//
+				//  🔴 CE QUI MANQUAIT N'ÉTAIT PAS LE BOUTON, C'ÉTAIT LA LIMITE.
+				//     `BeginMenu` avançait `menuBarX` sans JAMAIS le comparer à
+				//     quoi que ce soit : une barre de dix menus écrivait donc par
+				//     dessus tout ce qui occupait le centre de la bande — c'est
+				//     exactement le chevauchement avec le titre du document.
+				//     Un bouton « … » posé sans cette limite n'aurait rien réglé :
+				//     il n'aurait eu aucun moment où se déclencher.
+				//
+				//  ⚠️ `menuBarLimite` N'EST PAS `menuBarRect.x + menuBarRect.w`, et
+				//     la différence est le tout : l'hôte pose la bande sur TOUTE la
+				//     largeur (elle peint le fond), mais ne cède aux TITRES que ce
+				//     qui précède le titre centré. Deux nombres, deux rôles.
+				//  ⚠️ DEUX RÈGLES, PARCE QUE RODOLF EN A NOMMÉ DEUX : « si le menu
+				//     est touffu à partir d'un NIVEAU **ou** d'un NOMBRE de menus ».
+				//     La largeur seule ne suffit pas — sur un grand écran, quinze
+				//     menus tiennent et restent illisibles. `menuBarMaxTitres` est
+				//     la seconde règle, et elle se DÉCLARE (document ou API).
+				float32 menuBarLimite = 0.f;			   ///< x maximal cédé aux titres
+				bool menuBarOuverte = false;			   ///< entre Begin/EndMenuBar
+				int32 menuBarMaxTitres = -1;			   ///< -1 = pas de plafond de nombre
+				int32 menuBarTitresPoses = 0;			   ///< titres réellement posés dans la bande
+				NkGuiId menuBarDebordId = NKGUI_ID_NONE;   ///< id du titre « … »
+				bool menuBarDeborde = false;			   ///< un menu au moins est tombé dedans
+				bool menuBarDebordOuvert = false;		   ///< le puits « … » est déroulé cette image
+				int32 menuBarDebordCompte = 0;			   ///< combien de menus y sont tombés
+
+				// IDs d'interaction
+				NkGuiId hotId = NKGUI_ID_NONE;	   ///< widget survolé (greedy : dernier soumis = au-dessus)
+				NkGuiId hotIdPrev = NKGUI_ID_NONE; ///< hotId de la frame précédente (résout le z-ordre)
+				NkGuiId activeId = NKGUI_ID_NONE;  ///< widget en interaction (persistant)
+				/// LA DERNIERE POSITION DE SOURIS VALIDE, gardee pendant qu'un widget tient le
+				/// pointeur. Cf. la regle « une sentinelle n'est pas une position », BeginFrame.
+				NkVec2 mouseValide{0.f, 0.f};
+				NkGuiInteract interact = NkGuiInteract::None;
+				bool lastItemHovered = false; ///< le DERNIER widget interactif est-il survolé ? (tooltips)
+
+				// ── Glisser-deposer (2026-08-17) — l'etat vit ICI, l'application
+				// DECLARE (meme style que l'occultation par couches). Poses par
+				// ButtonBehavior ; consommes par BeginDragSource/BeginDropTarget
+				// (NkGuiWidgets.h).
+				NkGuiId lastItemId = NKGUI_ID_NONE; ///< dernier widget interactif soumis
+				NkRect lastItemRect{0.f, 0.f, 0.f, 0.f}; ///< son rect (cible de drop)
+				// 256 : un chemin relatif d'asset doit tenir ENTIER dans la charge —
+				// une charge tronquee livrerait un mensonge (les chemins du Content
+				// Browser depassent couramment 64 octets).
+				static constexpr int32 DragPayloadMax = 256;
+				NkGuiId dragCandidateId = NKGUI_ID_NONE; ///< presse, pas encore glisse
+				NkVec2 dragCandidatePos{0.f, 0.f};		 ///< position souris a l'armement
+				bool dragActive = false;				 ///< un glisser est en cours
+				bool dragEndPending = false;			 ///< relache : nettoyage au prochain NewFrame
+				bool dragDelivered = false;				 ///< livre (une seule livraison)
+				NkGuiId dragSourceId = NKGUI_ID_NONE;
+				char dragType[32] = {};					///< type declare par la source
+				unsigned char dragPayload[DragPayloadMax] = {};
+				int32 dragPayloadSize = 0;
+				char dragGhost[64] = {}; ///< libelle du fantome (dessine par la bibliotheque)
+
+				// Pile d'ID (scoping)
+				NkGuiId idStack[32] = {};
+				int32 idDepth = 0;
+
+				// Pile « désactivé » (BeginDisabled/EndDisabled) — non-interactif + grisé.
+				bool disabledStack[16] = {};
+				int32 disabledDepth = 0;
+
+				// Temps + état de SAISIE (champ focalisé, caret, défilement).
+				float32 time = 0.f;				 ///< temps accumulé (blink du caret)
+				NkGuiId inputId = NKGUI_ID_NONE; ///< champ texte focalisé (0 = aucun)
+				int32 inputCaret = 0;			 ///< position caret (octets) du champ focalisé
+				int32 inputAnchor = -1;		 ///< ancre de SELECTION (octets, -1 = pas de sélection)
+				bool inputDrag = false;		 ///< glissement souris en cours (étend la sélection)
+				float32 inputScroll = 0.f;		 ///< défilement horizontal du champ focalisé
+				bool inputClickConsumed = false; ///< un champ a-t-il pris le clic cette frame ?
+
+				// Renommage inline (F2 / double-clic sur un item) : id de l'item édité
+				// + sauvegarde du libellé pour annuler (Échap).
+				NkGuiId renameId = NKGUI_ID_NONE;
+				char renameBackup[128] = {};
+
+				// Champ numérique (DragFloat/DragInt) en édition TEXTE (double-clic) :
+				// id du champ + tampon + dernière abscisse souris pour le cliquer-glisser.
+				NkGuiId dragEditId = NKGUI_ID_NONE;
+				char dragBuf[48] = {};
+				float32 dragLastX = 0.f;
+				float32 dragLastY = 0.f;
+
+				// Curseur souhaité cette frame (posé par les widgets, ex. DragFloat → ↔).
+				// L'app le mappe vers NkWindow::SetCursor (OPTIONNEL). Reset chaque frame.
+				NkGuiCursor wantCursor = NkGuiCursor::Arrow;
+				/// (Q8, 21/09) L'INFOBULLE RETENUE, peinte par `EndFrame` au SOMMET de
+				/// l'overlay : aucun panneau, menu ou tiroir peint apres elle ne la
+				/// recouvre plus.
+				bool tooltipPose = false;
+				NkRect tooltipRect = {0.f, 0.f, 0.f, 0.f};
+				float32 tooltipBase = 0.f, tooltipPadX = 0.f;
+				char tooltipTexte[256] = {0};
+
+				// Stockage PERSISTANT (entre frames) : arbres ouverts + onglet
+				// sélectionné par barre d'onglets.
+				NkVector<NkGuiId> openNodes;
+				NkVector<NkGuiId> tabBarKeys;
+				NkVector<int32> tabBarSel;
+
+				// Liste sélectionnable (multi-select + focus clavier). Stockage par liste.
+				NkVector<NkGuiId> selKeys;
+				NkVector<int32> selFocusStore;
+				NkVector<int32> selAnchorStore;
+				NkGuiId curSelList = NKGUI_ID_NONE; // liste en cours (entre Begin/End)
+				bool *selMask = nullptr;			// masque de sélection (appartient à l'app)
+				int32 selCount = 0;
+				bool selMulti = false;
+				int32 selIdx = 0;					   // index de l'item courant
+				int32 selFocus = -1;				   // item focalisé (clavier)
+				int32 selAnchor = -1;				   // ancre (Shift+plage)
+				NkGuiId activeSelList = NKGUI_ID_NONE; // liste ayant le focus clavier
+
+				// Zones défilables (BeginChild/ListBox/BeginPanel) : état {x,y,barV,barH}
+				// persistant par id + PILE de frames (imbrication supportée).
+				NkVector<NkGuiId> scrollKeys;
+				NkVector<NkGuiScrollState> scrollVals;
+				static constexpr int32 ChildMax = 8;
+				NkGuiChildFrame childStack[ChildMax];
+				int32 childDepth = 0;
+
+				// Pile de CONTENEURS de layout (VBox/HBox/Grid/Stack/Group) : sauvegarde du
+				// layout parent + origine, pour restaurer et avancer le parent du bloc consommé.
+				static constexpr int32 ContainerMax = 32;
+				NkGuiLayout containerSaved[ContainerMax];
+				NkVec2 containerStart[ContainerMax] = {};
+				int32 containerDepth = 0;
+				// Couche overlay forcée (PushOverlay/PopOverlay → dessin AU-DESSUS du contenu).
+				int32 overlayDepth = 0;
+				// Modificateur déclenchant le scroll HORIZONTAL via la molette verticale.
+				// CONFIGURABLE par l'app (`ctx.hscrollMod = NkGuiKeyMod::Ctrl;`). Défaut =
+				// Maj (convention navigateurs/éditeurs). None = molette = horizontal direct.
+				NkGuiKeyMod hscrollMod = NkGuiKeyMod::Shift;
+
+				// ── Table (BeginTable/EndTable) ───────────────────────────────────
+				// Une seule table active à la fois (pas d'imbrication v1). La table vit
+				// dans le LAYOUT courant → scrolle naturellement dans un panneau/child.
+				NkGuiId tblId = NKGUI_ID_NONE;
+				uint32 tblFlags = 0;
+				int32 tblCols = 0;		 ///< nb de colonnes
+				int32 tblSetup = 0;		 ///< colonnes définies via TableSetupColumn
+				int32 tblCurCol = -1;	 ///< colonne courante (cellule)
+				int32 tblRowIdx = -1;	 ///< index de ligne (zébrures)
+				float32 tblX = 0.f;		 ///< x gauche de la table
+				float32 tblWidth = 0.f;	 ///< largeur totale EFFECTIVE (auto ou override)
+				float32 tblAvailW = 0.f; ///< largeur auto dispo (ContentWidth au BeginTable) = max override
+				float32 tblY = 0.f;		 ///< y haut de la ligne courante (écran)
+				float32 tblRowH = 0.f;	 ///< hauteur de ligne
+				int32 tblSortCol = -1;	 ///< colonne triée courante (Sortable)
+				bool tblSortAsc = true;
+				bool tblCellClip = false;					   ///< un clip de cellule est-il actif ?
+				bool tblXComputed = false;					   ///< bornes de colonnes calculées cette frame ?
+				float32 tblSetupW[NkGuiTableMaxCols] = {};	   ///< largeur demandée (px ; <=0 = étirable)
+				float32 tblUserW[NkGuiTableMaxCols] = {};	   ///< largeur après resize (0 = non touché)
+				float32 tblColX[NkGuiTableMaxCols + 1] = {};   ///< bornes x résolues
+				const char *tblColLbl[NkGuiTableMaxCols] = {}; ///< libellés d'en-tête
+				NkGuiLayout tblSavedLayout;					   ///< layout externe sauvegardé
+				NkVector<NkGuiId> tblKeys;					   ///< largeurs persistantes par table (resize)
+				NkVector<NkGuiTableW> tblWidths;
+
+				// Color picker : HSV mémorisé par id (préserve la teinte quand S ou V → 0,
+				// sinon la teinte « saute » au noir/blanc). (h[0,360], s[0,100], v[0,100], a[0,1]).
+				NkVector<NkGuiId> pickerKeys;
+				NkVector<NkVec4> pickerHSV;
+
+				// Hook de style (override de dessin par widget). Si `styleFn` est défini et
+				// renvoie true pour un élément, l'app l'a dessiné → NKGui saute le défaut.
+				using NkGuiStyleFn = bool (*)(NkGuiContext &, const NkGuiStyleItem &, void *);
+				NkGuiStyleFn styleFn = nullptr;
+				void *styleUser = nullptr;
+
+				// ── INTROSPECTION : ce que cette trame a dessiné ──────────────────
+				// Silencieuse par défaut (`actif = false`) : sans activation, les
+				// widgets se contentent d'un test de booléen et rien n'est écrit.
+				// Le relevé est un ENREGISTREMENT de trame, pas un état persistant —
+				// NKGui ne retient aucun arbre de contrôles (mesure du 2026-08-28).
+				// Vidé au BeginFrame, lisible après EndFrame.
+				// Critère d'acceptation : Kernel/Runtime/NKGui/INTROSPECTION.md
+				NkGuiIntrospect introspect;
+
+				// Rafale (repeat) — défauts globaux, surchargeables par bouton.
+				float32 repeatDelay = 0.25f; ///< délai initial avant rafale (s)
+				float32 repeatRate = 0.05f;	 ///< intervalle entre rafales (s)
+
+				// ── Cycle de vie ──────────────────────────────────────────────────
+				bool Init(int32 width, int32 height) noexcept;
+				void Shutdown() noexcept;
+
+				// ── Cycle de frame ────────────────────────────────────────────────
+				// BeginFrame : APRÈS que l'app ait posé l'input brut (events). Calcule
+				// les transitions, réinitialise hotId + la draw list.
+				void BeginFrame(float32 dt) noexcept;
+				void EndFrame() noexcept;
+
+				// ── Pile d'ID ─────────────────────────────────────────────────────
+				void PushId(const char *s) noexcept;
+				void PushId(const void *p) noexcept;
+				void PopId() noexcept;
+				NkGuiId GetId(const char *s) const noexcept; ///< hash + graine = top de pile
+
+				// ── Layout (curseur immédiat) ─────────────────────────────────────
+				void BeginLayout(const NkRect &region) noexcept;	///< région de contenu + curseur
+				// Pose le rectangle du PROCHAIN widget auto-place. Vaut pour UN
+				// seul appel : le widget suivant le consomme, et le comportement
+				// automatique reprend aussitot. Additif — sans appel, les 102
+				// fonctions se placent exactement comme avant.
+				//
+				// Le curseur de mise en page NE BOUGE PAS : l'appelant qui pose un
+				// rectangle place lui-meme, un curseur qui avancerait derriere lui
+				// n'aurait pas de sens. En revanche l'etendue du contenu
+				// (maxX/maxY) et `prevItem` sont mis a jour, pour que les
+				// conteneurs defilables se dimensionnent juste et que SameLine
+				// reste coherent.
+				void SetNextItemRect(const NkRect &r) noexcept;
+				NkRect NextItemRect(float32 w, float32 h) noexcept; ///< w<=0 = remplir la largeur
+				void SameLine(float32 spacingX = -1.f) noexcept;	///< item suivant à droite du précédent
+				void Spacing(float32 px = -1.f) noexcept;			///< saut vertical
+				float32 ContentWidth() const noexcept;				///< largeur restante au curseur
+				float32 AvailHeight() const noexcept;				///< hauteur restante sous le curseur (région)
+				float32 ItemHeight() const noexcept;				///< hauteur standard d'un widget
+
+				// ═══════════════════════════════════════════════════════════════
+				//  UNE SENTINELLE N'EST PAS UNE POSITION -- la regle, ecrite UNE FOIS
+				// ═══════════════════════════════════════════════════════════════
+				//  Le depot emploie des positions SENTINELLES pour dire « nulle part » :
+				//  la coquille repousse la souris a (-100000, -100000) quand elle masque
+				//  l'entree des panneaux, les sondes de capture a (-10000, -10000).
+				//  Une sentinelle rapportee a une zone donne une fraction absurde, bornee
+				//  au minimum : mesure le 17/09, un separateur tire a 398 px puis relache
+				//  pendant que la souris etait « nulle part » voyait sa colonne tomber a
+				//  98 px. **La colonne s'effondre, et rien ne le dit.**
+				//
+				//  ⚠️ LA REGLE EST ECRITE ICI, ET NULLE PART AILLEURS : tout geste qui
+				//     derive une valeur de la position ABSOLUE appelle `PositionGeste()`
+				//     au lieu de lire `input.mousePos`. Quinze gardes ecrites quinze fois
+				//     auraient quinze occasions d'etre oubliees.
+				//
+				//  ⚠️ ET LA REGLE NE PEUT PAS VIVRE DANS `BeginFrame` : l'application pose
+				//     son entree APRES (le tick de la coquille, les injecteurs des sondes),
+				//     et la coquille masque en plein milieu de l'image. Une garde posee
+				//     trop tot juge la position de l'image precedente. Mesure : la premiere
+				//     version, placee dans `BeginFrame`, ne mordait jamais -- et sa mutation
+				//     rendait le MEME resultat, ce qui l'a trahie.
+				//
+				//  La borne n'est pas un nombre invente : une fenetre entiere de marge de
+				//  chaque cote. Une souris qui sort VRAIMENT de la fenetre reste valide --
+				//  le geste la suit jusqu'au bord, ce qu'un utilisateur attend.
+				bool SentinelleSouris(const NkVec2 &p) const noexcept {
+					const float32 W = (float32)viewW, H = (float32)viewH;
+					if (W <= 0.f || H <= 0.f)
+						return false; // sans fenetre mesurable, on ne juge pas
+					return p.x < -W || p.x > W * 2.f || p.y < -H || p.y > H * 2.f;
+				}
+
+				/// La position a employer PENDANT un geste. Rend la derniere position
+				/// valide quand la courante est une sentinelle.
+				NkVec2 PositionGeste() noexcept {
+					static const bool kSansGarde = []() {
+						const char *v = getenv("NK_SOURIS_MUTATION"); // =libre : garde retiree
+						return v && v[0] == 'l';
+					}();
+					if (kSansGarde || !SentinelleSouris(input.mousePos)) {
+						mouseValide = input.mousePos;
+						return input.mousePos;
+					}
+					return mouseValide;
+				}
+				float32 S(float32 px) const noexcept {
+					return px * scale;
+				} ///< px logiques → px écran (DPI)
+
+				void Indent(float32 w) noexcept; ///< décale le début de ligne (arbres)
+
+				// ── Stockage (arbres / onglets) ───────────────────────────────────
+				bool IsNodeOpen(NkGuiId id) const noexcept;
+				void SetNodeOpen(NkGuiId id, bool open) noexcept;
+				int32 GetTabIndex(NkGuiId bar) const noexcept; ///< -1 si jamais défini
+				void SetTabIndex(NkGuiId bar, int32 idx) noexcept;
+
+				// ── Liste sélectionnable (multi-select + clavier) ─────────────────
+				// `mask`/`count` = sélection appartenant à l'app. Gère la navigation
+				// clavier (Haut/Bas, Entrée) si la liste a le focus.
+				void BeginSelectList(const char *id, bool *mask, int32 count, NkGuiSelectFlags flags) noexcept;
+				void ApplySelectClick(int32 idx) noexcept; ///< appliqué au clic d'un item (single/ctrl/shift)
+				void EndSelectList() noexcept;
+
+				// ── Désactivation contextuelle (empilable) ────────────────────────
+				void BeginDisabled(bool disabled = true) noexcept;
+				void EndDisabled() noexcept;
+
+				bool IsDisabled() const noexcept {
+					return disabledDepth > 0 && disabledStack[disabledDepth - 1];
+				}
+
+				// ── Popups / overlay (pile) ───────────────────────────────────────
+				// Ouvre un popup de PREMIER niveau (combo, menu, menu contextuel) :
+				// réinitialise la chaîne. `OpenPopupAt` mémorise en plus une ancre.
+				void OpenPopup(NkGuiId id) noexcept {
+					popupStack[0] = id;
+					popupDepth = 1;
+				}
+
+				void OpenPopupAt(NkGuiId id, NkVec2 pos) noexcept {
+					OpenPopup(id);
+					popupPos = pos;
+				}
+
+				void ClosePopup() noexcept {
+					popupDepth = 0;
+				}
+
+				// Ouvre/retient un popup au niveau `level` (sous-menu) en coupant les
+				// niveaux plus profonds (un seul sous-menu ouvert par niveau).
+				void OpenPopupLevel(NkGuiId id, int32 level) noexcept {
+					if (level < 0 || level >= PopupMax)
+						return;
+					popupStack[level] = id;
+					popupDepth = level + 1;
+				}
+
+				bool IsPopupOpen(NkGuiId id) const noexcept {
+					for (int32 i = 0; i < popupDepth; ++i)
+						if (popupStack[i] == id)
+							return true;
+					return false;
+				}
+
+				// ── Requêtes d'interaction ────────────────────────────────────────
+				bool IsHovered(const NkRect &r) const noexcept;
+
+				// Le dernier widget interactif soumis est-il survolé ? (pour SetTooltip).
+				bool IsItemHovered() const noexcept {
+					return lastItemHovered;
+				}
+
+				// ⭐ Survol respectant le z-ordre (overlap). Marque hotId de façon
+				// « gourmande » (le DERNIER widget soumis sous le pointeur = celui au
+				// -dessus gagne) et ne retourne true QUE pour le front-most (via
+				// hotIdPrev) → un widget masqué par un autre au-dessus ne capture pas.
+				// À appeler par CHAQUE widget interactif avant de réagir.
+				bool ItemHoverable(const NkRect &r, NkGuiId id) noexcept;
+
+				// Comportement bouton générique (hot/active/click). Met à jour hotId/
+				// activeId/interact. Sans Repeat : retourne true au relâchement dans le
+				// rect (sémantique « clic »). Avec Repeat : true à l'appui PUIS en rafale
+				// tant que maintenu (délai/cadence = override >=0, sinon défauts du ctx).
+				bool ButtonBehavior(NkGuiId id, const NkRect &r, NkGuiButtonFlags flags = NkGuiButtonFlags::None,
+									float32 repeatDelayOverride = -1.f, float32 repeatRateOverride = -1.f,
+									bool *outHovered = nullptr, bool *outHeld = nullptr) noexcept;
+		};
+
+		// ── Contexte courant (pour l'API immédiate) ───────────────────────────
+		NKENTSEU_NKGUI_API void SetCurrentContext(NkGuiContext *ctx) noexcept;
+		NKENTSEU_NKGUI_API NkGuiContext *GetCurrentContext() noexcept;
+
+	} // namespace nkgui
+} // namespace nkentseu

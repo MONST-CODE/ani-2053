@@ -1,0 +1,17 @@
+#!usr/bin/env python3
+#coding: _*_utf-8_*_
+
+from Jenga import*
+
+with workspace("NKCanvas"):
+    configurations(['Debug','Releases'])
+    targetoses([TargetOS.WINDOWS,TargetOS.ANDROID,TargetOS.WEB])
+    targetarchs([TargetArch.X86_64])
+    
+
+    useconfig("../BRUNO-NKCanvas/NkentseuKit.jenga")
+    
+
+
+    with include("exo1-la_fenetre_nue/exo1.jenga"):
+        pass
