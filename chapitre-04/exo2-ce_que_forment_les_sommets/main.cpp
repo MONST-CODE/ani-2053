@@ -32,33 +32,31 @@ int main()
         return 1;
     }
     //if
-    if (monType == POINTS )
-    
-    {
-        
-        comp=s;rest=s;
-        std::cout << "POINTS" << " " << s <<" " << comp << " POINTS " << rest << "\n";
-      if (monType == LINES) {
-        if((s%2) == 0){
+      if (monType == POINTS ){
+         comp=s;rest=s;
+        std::cout << "POINTS" << ' ' << s <<' ' << comp << " POINTS " << rest << "\n";
+        }
+      else if (monType == LINES) {
+         if((s%2) == 0){
             comp=s/2;
         }else{
             comp=(s-1)/2;
         }
         rest = s%2;
         nombredelignes =comp;
-        std::cout << "LINES" << " " << s <<" " << comp <<" LINES "<< rest << "\n";
+        std::cout << "LINES" << ' ' << s <<' ' << comp <<" LINES "<< rest << "\n";
       }
-      if (monType == LINE_STRIP)
+     else if (monType == LINE_STRIP)
       {
         if(s<2 || s==0){
             rest = 1;
-        std::cout << "LINES_STRIP" << " " << s <<" " << comp <<" LINES_STRIP " << rest << "\n";
+        std::cout << "LINES_STRIP" << ' ' << s <<' ' << comp <<" LINES_STRIP " << rest << "\n";
         }else{
             comp = s-1;
-            std::cout << "LINES_STRIP" << " " << s <<" " << comp << " LINES_STRIP " << rest << "\n";
+            std::cout << "LINES_STRIP" << ' ' << s <<' ' << comp << " LINES_STRIP " << rest << "\n";
         }
       }
-      if(monType == quads) {
+     else if(monType == quads) {
         nombredelignes +=comp;
         
         std::cout<<"QUADS "<<refuser<<std::endl;
@@ -77,9 +75,9 @@ int main()
         }
         rest = s%3;
         nombre_de_triangles +=comp;
-        std::cout << "TRIANGLES" << " " << s  <<" " << comp << " TRIANGLES " << rest << "\n";
+        std::cout << "TRIANGLES" << ' ' << s  <<' ' << comp << " TRIANGLES " << rest << "\n";
        
-       }
+       }else
        if(monType == TRIANGLE_FAN || monType == TRIANGLE_STRIP){
         if(s>=3)
         {
@@ -90,10 +88,10 @@ int main()
             rest = s;
         }
         nombre_de_triangles +=comp;
-        std::cout << "TRIANGLES_FAN" << " " << s  <<" "  << comp << " TRIANGLES_FAN " << rest << "\n";
+        std::cout << "TRIANGLES_FAN" << ' ' << s  <<' '<< comp << " TRIANGLES_FAN " << rest << "\n";
         }
-       }
-    if(monType == QUADS || monType == quads)
+       
+   else if(monType == QUADS || monType == quads)
     {
         ++refuser;
     };
@@ -102,8 +100,9 @@ int main()
     std::cout << "POINTS " << Nombre_total_de_Points << '\n';
     std::cout << "SEGMENTS " << nombredelignes << '\n';
     std::cout << "TRIANGLES " << nombre_de_triangles << '\n';
-    std::cout << "REFUSER " << refuser << '\n';
-
+    std::cout << "REFUSES " << refuser << '\n';
     std::cin>>s;
 }
+    
+
 
