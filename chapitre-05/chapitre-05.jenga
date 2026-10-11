@@ -1,0 +1,14 @@
+#!usr/bin/env python3
+#coding: _*_utf-8_*_ 
+
+from Jenga import*
+
+with workspace("Chapitre-05"):
+    configurations(['Debug' , 'Releases'])
+    targetoses([TargetOS.WINDOWS])
+    targetarchs([TargetArch.X86_64])
+
+    useconfig("../BRUNO-NKMedia/NkentseuKit.jenga")
+
+    with include("exo2-l_extension_qui_ment/exo2.jenga"):
+        pass
