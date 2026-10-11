@@ -1,0 +1,8 @@
+#!usr/bin/env python3
+#coding: _*_utf-8_*_
+
+with project("exo6"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++20")
+    files(["main.cpp"])

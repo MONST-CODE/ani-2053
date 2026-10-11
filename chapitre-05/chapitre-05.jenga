@@ -12,3 +12,15 @@ with workspace("Chapitre-05"):
 
     with include("exo2-l_extension_qui_ment/exo2.jenga"):
         pass
+    with include("exo3-les_six_formats/exo3.jenga"):
+        pass
+    with include("exo6-la_ligne_de_base/exo6.jenga"):
+        pass
+    with include("exo5-trois_polices_un_atlas/exo5.jenga"):
+        pass
+    with include("exo7-le_calcul_puis_le_fichier/exo7.jenga"):
+        pass
+    with include("exo9-conteneur_et_codec/exo9.jenga"):
+        pass
+    with include("exo8-un_son_vingt_voix/exo8.jenga"):
+        pass
