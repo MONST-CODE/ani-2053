@@ -1,0 +1,6 @@
+Tâche : 200 tâches indépendantes ; chacune additionne les 1 000 entiers préparés avant le chronométrage. La tâche longue refait cette somme 100 fois, soit 100 000 additions par tâche.
+Réserve : ___ ms, ___ ms, ___ ms.
+Fils : ___ ms, ___ ms, ___ ms.
+Ouvriers : ___ (valeur affichée par GetNumWorkers()).
+Tâche longue : Réserve (moyenne de trois mesures) : ___ ms ; Fils (moyenne de trois mesures) : ___ ms.
+Pourquoi : la réserve réutilise ses ouvriers : Enqueue met les tâches en attente et Join attend leur achèvement, sans recréer un thread pour chacune. Dans la version Fils, il faut créer 200 threads natifs puis joindre chacun d'eux. Pour une tâche courte, ce coût de création et de coordination peut représenter une grande part du temps total. Avec la tâche cent fois plus longue, le calcul utile pèse davantage et le coût de création devient proportionnellement moins important ; les temps ont donc généralement tendance à se rapprocher. Les résultats dépendent toutefois du processeur, du nombre d'ouvriers, du système et de la charge pendant les mesures.

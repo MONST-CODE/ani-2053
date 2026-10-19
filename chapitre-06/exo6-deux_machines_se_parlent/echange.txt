@@ -1,0 +1,7 @@
+Serveur : [Apres l'essai, recopier ici les lignes reelles affichees par la console serveur : ecoute, pair connecte et message recu. Remplacer ce texte par la sortie observee.]
+
+Client : [Apres l'essai, recopier ici les lignes reelles affichees par la console client : connexion, pair connecte et message envoye. Remplacer ce texte par la sortie observee.]
+
+Pair : Cote serveur, l'identifiant affiche designe le client connecte ; cote client, l'identifiant affiche designe le serveur distant. Reporter les deux valeurs effectivement observees dans les consoles.
+
+Machines : [Indiquer le test reel : une seule machine avec 127.0.0.1, ou deux machines du meme reseau local avec l'adresse IPv4 locale du serveur.]

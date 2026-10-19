@@ -1,0 +1,12 @@
+Liste :
+EXEMPLE DE FORMAT — À REMPLACER par la liste réelle affichée par le client :
+192.168.1.10:7777 — Salle Nkentseu A (maximum : 8 joueurs)
+
+Apparitions :
+Exemple seulement : dans cette liste, « Salle Nkentseu A » figure une fois à l’adresse 192.168.1.10:7777. Après l’essai, remplace cette phrase par le nombre d’entrées réellement affichées et relève les adresses exactes.
+
+Pourquoi :
+Dans le contrat de NkDiscovery, Broadcast envoie une annonce UDP, à appeler toutes les 2 secondes pour maintenir la visibilité (NkLobby.h, lignes 1085–1097 et déclaration de Broadcast ligne 1204). Listen(6000, trouves) collecte pendant 6 secondes ; sa documentation annonce une déduplication par adresse IP + port (NkLobby.h, lignes 1214–1217). Ainsi, même si un serveur diffuse plusieurs annonces pendant l’écoute, elles doivent former une seule entrée dans le résultat si leur adresse IP et leur port sont identiques. Le kit reçu contient NkLobby.h et NKNetwork.lib, mais pas NkLobby.cpp : je ne peux donc pas fournir honnêtement les numéros de lignes de l’implémentation .cpp. Si ton dépôt complet contient ce fichier, ajoute ici les lignes réelles qui envoient le broadcast et éliminent les doublons.
+
+Machines :
+À compléter après l’essai : indique si les rôles ont été lancés sur une seule machine ou sur plusieurs machines du même réseau local, puis recopie les adresses réellement utilisées.

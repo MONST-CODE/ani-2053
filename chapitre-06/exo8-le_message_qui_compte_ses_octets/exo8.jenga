@@ -1,0 +1,11 @@
+#!usr
+
+
+from Jenga import*
+
+with project("Exo8"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++20")
+    files(["octets.cpp"])
+    usebrunonknetwork()

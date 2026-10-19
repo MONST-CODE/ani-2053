@@ -1,0 +1,35 @@
+# Configuration de projet pour l'exercice 3.
+# Le workspace ANI-2053 doit charger le kit Canvas du 13 octobre 2026
+# avec useconfig("Kits/Canvas/Canvas.jenga") avant d'evaluer ce projet.
+
+from Jenga import *
+from jengaconfig import *
+
+with project("Exo3LaCourseCorrigee"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++17")
+    location(".")
+    files(["corrige.cpp"])
+    
+
+    # NKCore pour NkTypes/NkAtomic, NKThreading pour les fils et les verrous,
+    # NKTime pour NkChrono, NKLogger pour les resultats.
+    usenkentseukit()
+    usebrunonknetwork()
+
+    objdir("%{wks.location}/Build/Obj/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}")
+    targetdir("%{wks.location}/Build/Bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}")
+
+    with filter("system:Windows"):
+        usetoolchain("clang++")
+
+    with filter("config:Debug"):
+        defines(["_DEBUG", "DEBUG"])
+        optimize("Off")
+        symbols(True)
+
+    with filter("config:Release"):
+        defines(["NDEBUG"])
+        optimize("Speed")
+        symbols(False)

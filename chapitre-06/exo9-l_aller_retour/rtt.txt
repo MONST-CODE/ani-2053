@@ -1,0 +1,6 @@
+Moyenne : À générer après les 100 allers-retours réels.
+Minimum : À générer après les 100 allers-retours réels.
+Maximum : À générer après les 100 allers-retours réels.
+Lissée : À générer après les 100 allers-retours réels.
+Moteur : À lire avec GetConnectionStats(pair, stats).
+Écart : Comparer l'aller-retour mesuré par NkChrono au rttMs du moteur. NetThreadLoop traite les sockets et met à jour les connexions ; le RTT applicatif comprend l'envoi du message et son écho, tandis que rttMs est l'estimation interne lissée du protocole. Le rythme de traitement réseau et la méthode de lissage peuvent donc produire des valeurs différentes.

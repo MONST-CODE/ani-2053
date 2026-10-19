@@ -1,0 +1,32 @@
+#!usr/bin/env python3
+#coding: _*_utf-8_*_
+
+from Jenga import*
+
+with workspace("Chapitre-06"):
+     configurations(['Debug' , 'Releases'])
+     targetoses([TargetOS.WINDOWS])
+     targetarchs([TargetArch.X86_64])
+     
+
+     useconfig("../BRUNO-NKNetwork/BRUNO-NKNetwork.Jenga")
+     useconfig("../BRUNO-NKCanvas/NkentseuKit.Jenga")
+
+     with include("exo1-la_reserve/exo1.jenga"):
+          pass
+     with include("exo3-la_course_corrigee/corrige.jenga"):
+          pass
+     with include("exo4-l_etreinte_fatale/exo4.jenga"):
+          pass
+     with include("exo5-le_futur_qui_ne_bloque_pas/exo5.jenga"):
+          pass
+     with include("exo6-deux_machines_se_parlent/exo6.jenga"):
+          pass
+     with include("exo7-la_decouverte/exo7.jenga"):
+          pass
+     with include("exo8-le_message_qui_compte_ses_octets/exo8.jenga"):
+          pass
+     with include("exo9-l_aller_retour/ex09.jenga"):
+          pass
+     with include("exo10-le_joueur_fantome/exo10.jenga"):
+          pass

@@ -1,0 +1,18 @@
+Dix totaux :
+[À remplacer par le total observé lors de l'exécution Debug 1]
+[À remplacer par le total observé lors de l'exécution Debug 2]
+[À remplacer par le total observé lors de l'exécution Debug 3]
+[À remplacer par le total observé lors de l'exécution Debug 4]
+[À remplacer par le total observé lors de l'exécution Debug 5]
+[À remplacer par le total observé lors de l'exécution Debug 6]
+[À remplacer par le total observé lors de l'exécution Debug 7]
+[À remplacer par le total observé lors de l'exécution Debug 8]
+[À remplacer par le total observé lors de l'exécution Debug 9]
+[À remplacer par le total observé lors de l'exécution Debug 10]
+Total attendu avec huit fils : 8000000.
+
+Un seul fil : total observé à relever en Debug : [à compléter] ; total attendu : 1000000.
+
+Release : trois totaux observés à relever : [1 : à compléter], [2 : à compléter], [3 : à compléter] ; total théorique attendu : 8000000 pour chaque exécution.
+
+Pourquoi : compteur += 1 n'est pas une opération atomique. Chaque fil doit lire la valeur courante, lui ajouter un, puis réécrire le résultat. Deux fils peuvent lire la même ancienne valeur et écrire ensuite la même nouvelle valeur : l'une des incrémentations est alors perdue. En C++, des accès concurrents en écriture à un même entier sans synchronisation constituent une course de données et rendent le comportement indéfini ; les résultats ne sont donc pas garantis et peuvent varier d'une exécution à l'autre. Join() assure que les fils ont terminé avant la lecture finale, mais ne protège pas les incrémentations effectuées pendant leur exécution. En Release, l'optimiseur peut transformer davantage la boucle en s'appuyant sur les règles du langage ; comme le programme contient une course de données, aucune valeur particulière n'est garantie. Un total exact ne prouve pas l'absence de course.

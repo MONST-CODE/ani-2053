@@ -1,0 +1,11 @@
+#!usr
+
+
+from Jenga import*
+
+with project("Exo4"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++20")
+    files(["etreinte.cpp"])
+    usebrunonknetwork()

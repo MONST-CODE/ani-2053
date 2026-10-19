@@ -1,0 +1,7 @@
+Types complets : 18 octets (144 bits attendus : deux champs de 8 bits et quatre champs de 32 bits).
+
+Quantifié : 8 octets (60 bits attendus : 1 bit pour l'état, 8 pour le numéro, 17 pour chaque position, 10 pour l'angle et 7 pour la santé).
+
+Écart maximal : pour l'état, 0 ; pour le numéro, 0 ; pour la position x, environ 0,004 m ; pour y, environ 0,004 m ; pour l'angle, environ 0,230 degré ; pour la santé, 0 point. Ce sont les écarts attendus pour l'état de test déclaré dans octets.cpp ; confirme-les avec les écarts imprimés par le serveur après un essai réel.
+
+Ce que le joueur verrait : la charge utile passe de 18 à 8 octets, soit 10 octets économisés pour cet état. Les erreurs attendues de quelques millimètres sur la position et d'environ un quart de degré sur l'angle sont généralement imperceptibles en jeu. L'état, le numéro et la santé restent exacts.

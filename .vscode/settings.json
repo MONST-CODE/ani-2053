@@ -1,3 +1,4 @@
 {
-    "editor.overtypeCursorStyle": "line"
+    "editor.overtypeCursorStyle": "line",
+    "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

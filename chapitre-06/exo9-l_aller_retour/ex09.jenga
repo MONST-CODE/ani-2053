@@ -1,0 +1,12 @@
+
+
+from Jenga import*
+
+
+with project("Exo1"):
+    consoleapp()
+    language("C++")
+    cppdialect("C++20")
+    files(["allerretour.cpp"])
+    usenkentseukit()
+    usebrunonknetwork()

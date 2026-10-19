@@ -1,0 +1,7 @@
+Constat : Dans la version volontairement bloquée, le journal affiche le message de lancement, puis le programme reste bloqué sur le premier Join(). Il ne plante pas et le message de fin n’apparait jamais. Les messages du logger Nkentseu se trouvent dans logs/app.log.
+
+Pause : Dans la version bloquée, le fil A attend à la ligne 34, en essayant d’obtenir m2 que le fil B détient. Le fil B attend à la ligne 40, en essayant d’obtenir m1 que le fil A détient. Ces deux lignes correspondent aux seconds verrouillages dans le bloc conservé en commentaire ; confirme-les dans le débogueur pendant l’expérience.
+
+Correction : J’ai changé l’ordre du fil B : il prend maintenant m1 avant m2, comme le fil A. Je n’ai retiré ni verrou ni attente de 100 millisecondes. Dans la version corrigée, les deux fils peuvent terminer et le message de fin doit apparaître après les deux Join(). Il reste à confirmer les trois lancements sur la machine de travail.
+
+Règle : Dans tout le programme, les mutex doivent toujours être pris dans le même ordre global. Si une opération a besoin de m1 et de m2, elle prend m1 avant m2, quelle que soit la fonction ou le fil qui l’appelle. Ainsi, deux fils ne gardent pas chacun un verrou que l’autre attend.

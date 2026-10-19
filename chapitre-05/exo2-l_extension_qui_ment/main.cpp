@@ -3,136 +3,75 @@
 #include <vector>
 #include <cctype>
 
-// ============================================================
-// 1. CONVERSION DE L'HEXADECIMAL EN OCTETS
-// ============================================================
-
-// Convertit un chiffre hexadecimal en valeur entre 0 et 15.
-// Retourne -1 si le caractere n'est pas hexadecimal.
 int valeurHex(char c)
 {
-    if (c >= '0' && c <= '9')
+    // Transformer un caractère hexadécimal en nombre.
+    
+    if(c >= '0' && c <= '9')
     {
         return c - '0';
     }
-
-    if (c >= 'A' && c <= 'F')
+    if(c >= 'A' && c <= 'F')
     {
-        return c - 'A' + 10;
+        return c - 'A'+10;
     }
-
-    if (c >= 'a' && c <= 'f')
+    if(c >= 'a' && c <= 'f')
     {
-        return c - 'a' + 10;
+        return c - 'a'+10;
     }
-
-    return -1;
+    return -1; 
 }
 
-// Convertit une chaine hexadecimale en octets.
-// Chaque paire de caracteres represente un octet.
-// Le tiret '-' indique qu'aucun octet n'est fourni.
-std::vector<unsigned char> decoderHex(const std::string& texte)
+std::vector<int> decoderHex(const std::string& texte)
 {
-    std::vector<unsigned char> octets;
-
-    if (texte == "-")
+    std::vector<int> octets;
+    if( texte == "-")
     {
-        return octets;
+       return octets;
+    } 
+    for (std::size_t i = 0; i+1<texte.size(); i+= 2){
+    
+     int haut = valeurHex(texte[i]);
+     int bas = valeurHex(texte[i+1]) ;
+     int ReelValeur = (haut * 16) + bas;
+     octets.push_back(ReelValeur);
     }
-
-    // Une chaine hexadecimale doit contenir un nombre pair
-    // de caracteres.
-    if (texte.size() % 2 != 0)
-    {
-        return {};
-    }
-
-    for (std::size_t i = 0; i < texte.size(); i += 2)
-    {
-        int haut = valeurHex(texte[i]);
-        int bas = valeurHex(texte[i + 1]);
-
-        // Rejeter une chaine contenant un chiffre incorrect.
-        if (haut < 0 || bas < 0)
-        {
-            return {};
-        }
-
-        int valeur = haut * 16 + bas;
-
-        octets.push_back(
-            static_cast<unsigned char>(valeur)
-        );
-    }
-
     return octets;
 }
 
-// ============================================================
-// 2. RECONNAISSANCE DU FORMAT REEL DU FICHIER
-// ============================================================
-
-// Reconnait le format en examinant les octets fournis.
-// Les regles sont appliquees dans l'ordre de l'enonce.
-// Une chaine vide signifie qu'aucun format n'est reconnu.
 std::string reconnaitreFormat(
     long long taille,
-    const std::vector<unsigned char>& octets)
+    const std::vector<int>& octets)
 {
-    const std::size_t n = octets.size();
-
-    // Regle generale : les fichiers de moins de 4 octets
-    // sont refuses immediatement.
-    // Aucun message supplementaire ne doit etre affiche.
-    if (taille < 4)
+    // Tester les formats dans l'ordre EXACT de l'énoncé.
+    
+    // 1. taille < 4 -> aucun format
+    if(taille<4)
     {
+        std::cout<<"Taille n respectant la taille d'aucun format"<<std::endl;
         return "";
     }
-
-    // --------------------------------------------------------
-    // PNG
-    // Signature : 89 50 4E 47
-    // La taille totale doit etre d'au moins 8 octets.
-    // --------------------------------------------------------
-    if (taille >= 8 &&
-        n >= 4 &&
-        octets[0] == 0x89 &&
-        octets[1] == 0x50 &&
-        octets[2] == 0x4E &&
-        octets[3] == 0x47)
+    //
+    // 2. PNG
+    if(taille >= 8 && octets.size()>=4 && octets[0] == 0x89 && octets[1] == 0x50 && octets[2] == 0x4E && octets[3] == 0x47)
     {
         return "PNG";
     }
-
-    // --------------------------------------------------------
-    // JPEG
-    // Signature : FF D8 FF
-    // --------------------------------------------------------
-    if (n >= 3 &&
-        octets[0] == 0xFF &&
-        octets[1] == 0xD8 &&
-        octets[2] == 0xFF)
+    //
+    // 3. JPEG
+    if(octets.size()>=3 && octets[0] == 0xFF && octets[1] == 0xD8 && octets[2] == 0xFF)
     {
         return "JPEG";
     }
-
-    // --------------------------------------------------------
-    // BMP
-    // Signature : BM
-    // --------------------------------------------------------
-    if (n >= 2 &&
-        octets[0] == 0x42 &&
-        octets[1] == 0x4D)
+    //
+    // 4. BMP
+    if(octets.size()>=2 && octets[0] == 0x42 && octets[1] == 0x4D)
     {
         return "BMP";
     }
-
-    // --------------------------------------------------------
-    // QOI
-    // Signature : qoif
-    // --------------------------------------------------------
-    if (n >= 4 &&
+    
+    // 5. QOI : 71 6F 69 66
+    if (octets.size() >= 4 &&
         octets[0] == 0x71 &&
         octets[1] == 0x6F &&
         octets[2] == 0x69 &&
@@ -141,11 +80,8 @@ std::string reconnaitreFormat(
         return "QOI";
     }
 
-    // --------------------------------------------------------
-    // GIF
-    // Signature : GIF8
-    // --------------------------------------------------------
-    if (n >= 4 &&
+    // 6. GIF : 47 49 46 38
+    if (octets.size() >= 4 &&
         octets[0] == 0x47 &&
         octets[1] == 0x49 &&
         octets[2] == 0x46 &&
@@ -154,11 +90,8 @@ std::string reconnaitreFormat(
         return "GIF";
     }
 
-    // --------------------------------------------------------
-    // ICO
-    // Signatures : 00 00 01 00 ou 00 00 02 00
-    // --------------------------------------------------------
-    if (n >= 4 &&
+    // 7. ICO : 00 00 01 00 ou 00 00 02 00
+    if (octets.size() >= 4 &&
         octets[0] == 0x00 &&
         octets[1] == 0x00 &&
         (octets[2] == 0x01 || octets[2] == 0x02) &&
@@ -167,24 +100,17 @@ std::string reconnaitreFormat(
         return "ICO";
     }
 
-    // --------------------------------------------------------
-    // HDR
-    // Signature : #?
-    // La taille totale doit etre d'au moins 10 octets.
-    // --------------------------------------------------------
+    // 8. HDR : taille >= 10 et signature 23 3F
     if (taille >= 10 &&
-        n >= 2 &&
+        octets.size() >= 2 &&
         octets[0] == 0x23 &&
         octets[1] == 0x3F)
     {
         return "HDR";
     }
 
-    // --------------------------------------------------------
-    // EXR
-    // Signature : 76 2F 31 01
-    // --------------------------------------------------------
-    if (n >= 4 &&
+    // 9. EXR : 76 2F 31 01
+    if (octets.size() >= 4 &&
         octets[0] == 0x76 &&
         octets[1] == 0x2F &&
         octets[2] == 0x31 &&
@@ -193,40 +119,33 @@ std::string reconnaitreFormat(
         return "EXR";
     }
 
-    // --------------------------------------------------------
-    // PBM, PGM et PPM
-    // Premier octet : P (50)
-    // Deuxieme octet : chiffre ASCII entre 1 et 6.
-    // --------------------------------------------------------
-    if (n >= 2 &&
+    // 10. PBM, PGM ou PPM : le premier octet vaut 50 ("P").
+    if (octets.size() >= 2 &&
         octets[0] == 0x50 &&
         octets[1] >= 0x31 &&
         octets[1] <= 0x36)
     {
-        switch (octets[1])
+        if (octets[1] == 0x31 || octets[1] == 0x34)
         {
-            case 0x31:
-            case 0x34:
-                return "PBM";
+            return "PBM";
+        }
 
-            case 0x32:
-            case 0x35:
-                return "PGM";
+        if (octets[1] == 0x32 || octets[1] == 0x35)
+        {
+            return "PGM";
+        }
 
-            case 0x33:
-            case 0x36:
-                return "PPM";
+        if (octets[1] == 0x33 || octets[1] == 0x36)
+        {
+            return "PPM";
         }
     }
 
-    // --------------------------------------------------------
-    // TGA
-    // Ce format est suppose a partir du troisieme octet.
-    // La taille totale doit etre d'au moins 18 octets.
-    // --------------------------------------------------------
-    if (taille >= 18 && n >= 3)
+    // 11. TGA : ce format est supposé à partir du troisième octet.
+    // Attention : ICO a déjà été testé avant TGA.
+    if (taille >= 18 && octets.size() >= 3)
     {
-        unsigned char typeImage = octets[2];
+        int typeImage = octets[2];
 
         if (typeImage == 0x00 ||
             typeImage == 0x01 ||
@@ -240,14 +159,11 @@ std::string reconnaitreFormat(
         }
     }
 
-    // --------------------------------------------------------
-    // SVG
-    // On ignore d'abord un eventuel BOM UTF-8.
-    // On ignore ensuite les espaces autorises.
-    // --------------------------------------------------------
+    // 12. SVG : ignorer éventuellement le BOM UTF-8.
+    //Apres recherches je mesuis rendu compte qu'il yaplusieurs types de SVG
     std::size_t position = 0;
 
-    if (n >= 3 &&
+    if (octets.size() >= 3 &&
         octets[0] == 0xEF &&
         octets[1] == 0xBB &&
         octets[2] == 0xBF)
@@ -255,15 +171,13 @@ std::string reconnaitreFormat(
         position = 3;
     }
 
-    // Espaces, tabulations et retours a la ligne.
-    while (position < n)
+    // Ignorer les espaces, tabulations et retours à la ligne autorisés.
+    while (position < octets.size())
     {
-        unsigned char b = octets[position];
+        int b = octets[position];
 
-        if (b != 0x20 &&
-            b != 0x09 &&
-            b != 0x0A &&
-            b != 0x0D)
+        if (b != 0x20 && b != 0x09 &&
+            b != 0x0A && b != 0x0D)
         {
             break;
         }
@@ -271,8 +185,8 @@ std::string reconnaitreFormat(
         ++position;
     }
 
-    // SVG commencant par "<?xml".
-    if (position + 5 <= n &&
+    // SVG commençant par "<?xml".
+    if (position + 5 <= octets.size() &&
         octets[position]     == 0x3C &&
         octets[position + 1] == 0x3F &&
         octets[position + 2] == 0x78 &&
@@ -282,8 +196,8 @@ std::string reconnaitreFormat(
         return "SVG";
     }
 
-    // SVG commencant directement par "<svg".
-    if (position + 4 <= n &&
+    // SVG commençant directement par "<svg".
+    if (position + 4 <= octets.size() &&
         octets[position]     == 0x3C &&
         octets[position + 1] == 0x73 &&
         octets[position + 2] == 0x76 &&
@@ -291,29 +205,24 @@ std::string reconnaitreFormat(
     {
         return "SVG";
     }
-
-    // Aucun format reconnu.
-    return "";
+    return ""; // aucun format reconnu
 }
 
-// ============================================================
-// 3. EXTRACTION ET NORMALISATION DE L'EXTENSION
-// ============================================================
-
-// Extrait le texte situe apres le dernier point du nom.
-// Convertit ensuite l'extension en minuscules.
 std::string extensionDe(const std::string& nom)
 {
+    // Chercher le dernier point dans le nom.
     std::size_t position = nom.find_last_of('.');
 
-    // Aucun point : aucune extension.
+    // Aucun point = aucune extension.
     if (position == std::string::npos)
     {
         return "";
     }
 
+    // Récupérer tout ce qui vient après le dernier point.
     std::string extension = nom.substr(position + 1);
 
+    // Mettre l'extension en minuscules.
     for (char& c : extension)
     {
         c = static_cast<char>(
@@ -324,149 +233,102 @@ std::string extensionDe(const std::string& nom)
     return extension;
 }
 
-// ============================================================
-// 4. VERIFICATION DE LA CORRESPONDANCE FORMAT / EXTENSION
-// ============================================================
-
-// Renvoie true si l'extension est autorisee pour le format.
+// Vérifie si l'extension correspond au format reconnu.
 bool extensionCorrecte(
     const std::string& format,
     const std::string& extension)
 {
     if (format == "PNG")
-    {
         return extension == "png";
-    }
 
     if (format == "JPEG")
-    {
-        return extension == "jpg" ||
-               extension == "jpeg";
-    }
+        return extension == "jpg" || extension == "jpeg";
 
     if (format == "BMP")
-    {
         return extension == "bmp";
-    }
 
     if (format == "QOI")
-    {
         return extension == "qoi";
-    }
 
     if (format == "GIF")
-    {
         return extension == "gif";
-    }
 
     if (format == "ICO")
-    {
-        return extension == "ico" ||
-               extension == "cur";
-    }
+        return extension == "ico" || extension == "cur";
 
     if (format == "HDR")
-    {
         return extension == "hdr";
-    }
 
     if (format == "EXR")
-    {
         return extension == "exr";
-    }
 
     if (format == "PBM")
-    {
         return extension == "pbm";
-    }
 
     if (format == "PGM")
-    {
         return extension == "pgm";
-    }
 
     if (format == "PPM")
-    {
         return extension == "ppm";
-    }
 
     if (format == "TGA")
-    {
         return extension == "tga";
-    }
 
     if (format == "SVG")
-    {
         return extension == "svg";
-    }
 
     return false;
 }
 
-// ============================================================
-// 5. PROGRAMME PRINCIPAL
-// ============================================================
-
 int main()
 {
-    int N;
-
-    if (!(std::cin >> N))
-    {
-        return 0;
-    }
+    int n = 0;
+    std::cin >> n;
 
     long long lus = 0;
     long long mensonges = 0;
     long long refuses = 0;
 
-    for (int i = 0; i < N; ++i)
+    for (int i = 0; i < n; ++i)
     {
         std::string nom;
+        long long taille = 0;
         std::string texteHex;
-        long long taille;
 
-        // Lecture des informations du fichier.
+        // Lire le nom, la taille totale et les premiers octets.
         std::cin >> nom >> taille >> texteHex;
 
-        // Conversion des octets.
-        std::vector<unsigned char> octets =
-            decoderHex(texteHex);
+        // Convertir la chaîne hexadécimale en nombres.
+        std::vector<int> octets = decoderHex(texteHex);
 
-        // Reconnaissance du format reel.
-        std::string format =
-            reconnaitreFormat(taille, octets);
+        // Déterminer le véritable format du fichier.
+        std::string format = reconnaitreFormat(taille, octets);
 
         // Aucun format reconnu.
         if (format.empty())
         {
             std::cout << nom << " REFUSE\n";
-
             ++refuses;
             continue;
         }
 
-        // Le fichier est reconnu, meme si son extension ment.
+        // Le format est reconnu, même si l'extension ment.
         ++lus;
 
-        // Extraction et verification de l'extension.
         std::string extension = extensionDe(nom);
 
         if (extensionCorrecte(format, extension))
         {
-            std::cout << nom << ' '
-                      << format << " OK\n";
+            std::cout << nom << ' ' << format << " OK\n";
         }
         else
         {
-            std::cout << nom << ' '
-                      << format << " MENT\n";
-
+            std::cout << nom << ' ' << format << " MENT\n";
             ++mensonges;
         }
     }
 
-    // Bilan final.
+    // Bilan final
     std::cout << "LUS " << lus << '\n';
     std::cout << "MENSONGES " << mensonges << '\n';
     std::cout << "REFUSES " << refuses << '\n';

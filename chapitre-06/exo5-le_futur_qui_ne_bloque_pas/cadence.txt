@@ -1,0 +1,7 @@
+Image : fichier = grande-photo.png ; taille sur disque = A MESURER Mo ; dimensions = A MESURER x A MESURER pixels ; temps de chargement = A MESURER ms.
+
+Get : trame la plus longue = A MESURER ms ; trames dessinees pendant le chargement = A MESURER.
+
+IsReady : trame la plus longue = A MESURER ms ; trames dessinees pendant le chargement = A MESURER.
+
+Ce qu'on voit : avec Get, le fil principal attend la fin du chargement et le carre semble se figer pendant cette attente ; avec IsReady, la boucle verifie futur.IsReady() sans bloquer et le carre continue d'avancer pendant le chargement. Les mesures montrent l'effet concret du blocage sur la cadence.
