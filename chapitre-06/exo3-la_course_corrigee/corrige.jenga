@@ -17,7 +17,7 @@ with project("Exo3LaCourseCorrigee"):
     # NKTime pour NkChrono, NKLogger pour les resultats.
     usenkentseukit()
     usebrunonknetwork()
-
+"""
     objdir("%{wks.location}/Build/Obj/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}")
     targetdir("%{wks.location}/Build/Bin/%{cfg.buildcfg}-%{cfg.system}/%{prj.name}")
 
@@ -33,3 +33,4 @@ with project("Exo3LaCourseCorrigee"):
         defines(["NDEBUG"])
         optimize("Speed")
         symbols(False)
+"""

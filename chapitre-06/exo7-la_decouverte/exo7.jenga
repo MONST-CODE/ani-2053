@@ -9,3 +9,4 @@ with project("Exo7"):
     cppdialect("C++20")
     files(["decouverte.cpp"])
     usebrunonknetwork()
+    usenkentseukit()

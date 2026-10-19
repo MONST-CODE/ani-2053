@@ -4,14 +4,22 @@
 // les durées en Release. La version sans protection est volontairement
 // incorrecte : elle sert de point de comparaison, pas de modèle à suivre.
 
+// Le kit actuel déclare aussi nkentseu::time. Dans NkRandom.h, l'appel
+// non qualifié time(nullptr) peut alors désigner ce namespace au lieu de
+// la fonction standard. Ce petit contournement ne concerne que l'inclusion
+// de NKMain.h ; on retire la macro juste après.
+#include <ctime>
+#define time(...) (std::time(__VA_ARGS__))
+#include "NKWindow/NKMain.h"
+#undef time
+
 #include <NKCore/NkTypes.h>
 #include <NKCore/NkAtomic.h>
 #include <NKThreading/NkMutex.h>
 #include <NKThreading/NkScopedLock.h>
 #include <NKThreading/NkThread.h>
-#include <NKTime/NkChrono.h>
 #include <NKLogger/NkLog.h>
-#include "NKWindow/NKMain.h"
+#include <NKTime/NkChrono.h>
 
 using namespace nkentseu;
 
@@ -164,7 +172,7 @@ void MesurerVersion(const char* nom, FonctionMesure mesurer)
                 nom, dernierTotal, Mediane(temps[0], temps[1], temps[2]));
 }
 
-int nkmain()
+int nkmain(nkentseu::NkEntryState const& state)
 {
     logger.Info("Exercice 3 : La course corrigée");
     logger.Info("Nombre de fils : {0}", NombreDeFils);

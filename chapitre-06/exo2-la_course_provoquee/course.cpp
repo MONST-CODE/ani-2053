@@ -1,6 +1,7 @@
 #include <NKCore/NkTypes.h>
 #include <NKLogger/NkLog.h>
 #include <NKThreading/NkThread.h>
+#include "NKWindow/NKMain.h"
 
 // Pour le test principal : huit fils.
 // Pour le test a un seul fil, remplacer 8 par 1, recompiler et lancer,
@@ -8,7 +9,7 @@
 constexpr nkentseu::int32 NombreDeFils = 8;
 constexpr nkentseu::int32 IncrementationsParFil = 1000000;
 
-int nkmain()
+int nkmain(nkentseu::NkEntryState const& state)
 {
     nkentseu::int32 compteur = 0;
     nkentseu::threading::NkThread fils[NombreDeFils];
