@@ -1,0 +1,64 @@
+Canvas - kit Jenga
+====================
+
+construit le  : 2026-10-22 06:59
+workspace     : Nkentseu
+jenga         : 2.9.0
+en-tetes      : 608 fichiers dans include/
+
+Modules, dans l'ordre de lien (du plus dependant au plus fondamental) :
+    NKAudio
+    NKCanvas
+    NKMedia
+    NKGui
+    NKImage
+    NKWindow
+    NKNetwork
+    NKStream
+    NKEvent
+    NKFont
+    NKFileSystem
+    NKTime
+    NKLogger
+    NKMath
+    NKThreading
+    NKContainers
+    NKMemory
+    NKCore
+    NKGlad
+    NKPlatform
+
+Cibles construites :
+    Debug-Windows : 20 bibliotheques [bibliotheque C++ : libc++], + systeme : winmm, ws2_32, user32, gdi32, opengl32, dwmapi, shell32, comdlg32, mf, mfplat, mfreadwrite, mfuuid, uuid, ole32, dinput8, dxguid, d3d11, d3d12, dxgi, d3dcompiler, vulkan-1, avrt
+    Release-Windows : 20 bibliotheques [bibliotheque C++ : libc++], + systeme : winmm, ws2_32, user32, gdi32, opengl32, dwmapi, shell32, comdlg32, mf, mfplat, mfreadwrite, mfuuid, uuid, ole32, dinput8, dxguid, d3d11, d3d12, dxgi, d3dcompiler, vulkan-1, avrt
+
+A INSTALLER SUR LA MACHINE QUI CONSTRUIT :
+
+Ces dossiers ne sont PAS dans le kit. Ils appartiennent a des SDK
+installes a part, et le kit ne fait que dire ou ils etaient chez son
+producteur. Si les votres sont ailleurs, corrigez les chemins dans le
+fichier de configuration du kit.
+
+    C:/VulkanSDK/1.4.363.0/Lib
+
+Leurs EN-TETES ne sont pas necessaires : les modules du kit les
+encapsulent et n'en exposent rien dans leurs en-tetes publics. Seules
+les bibliotheques sont reclamees, a l'edition de liens.
+
+Pour une cible absente de cette liste, il faut refaire le kit depuis le
+depot : un kit ne contient que ce qui a ete construit avant lui.
+
+N'incluez aucun .jenga du projet d'origine dans votre
+workspace : ces fichiers dependent de la configuration de LEUR
+workspace et casseront a la lecture. Tout ce dont vous avez
+besoin est deja ici.
+
+Citez la date de construction dans vos retours.
+
+Rendu autonome par scripts/MakeKit.py le 2026-10-22 06:59.
+Cibles : Debug-Windows, Release-Windows.
+Bibliotheques externes embarquees (elles etaient cherchees dans un dossier de la machine d'origine) :
+  lib/Debug-Windows/vulkan-1.lib  <-  C:/VulkanSDK/1.4.363.0/Lib/vulkan-1.lib
+  lib/Release-Windows/vulkan-1.lib  <-  C:/VulkanSDK/1.4.363.0/Lib/vulkan-1.lib
+vulkan-1 est la bibliotheque d'import du chargeur Vulkan (Khronos, Apache-2.0). A l'execution,
+le programme demande vulkan-1.dll, que les pilotes graphiques installent.

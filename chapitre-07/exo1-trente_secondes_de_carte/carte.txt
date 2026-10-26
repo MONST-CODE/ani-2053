@@ -1,0 +1,6 @@
+Module : NKGUI
+D'après le projet : ['NKContainers', 'NKCore', 'NKEvent', 'NKFileSystem', 'NKFont', 'NKImage', 'NKLogger', 'NKMath', 'NKMemory', 'NKPlatform', 'NKThreading']
+Après l'en-tête : "NKGui/Widgets/NkGuiWidgets.h", "NKGui/Core/NkGuiIntrospect.h", "NKGui/Core/NkGuiContext.h", "NKGui/Core/NkGuiFont.h", "NKGui/Core/NkGuiDrawList.h", 
+                    "NKGui/Core/NkGuiInput.h", "NKGui/Core/NkGuiTypes.h", "NKGui/NkGuiExport.h", "NKPlatform/NkX11Clean.h"
+    Donc le seul reel Modul dont depends NKGUI D'apres son entete est NKPlatform
+Mes erreurs : Le fichier de projet "canvas.jenga" Ma Montrer toutes les Dependances dont Depend le Module NKGUI hors Son fichier d'entete NKGui.h Luin nous a fais Croire que NKGUI depend uniquement du Modules NKPlatform
