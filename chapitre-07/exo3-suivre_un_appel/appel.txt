@@ -1,0 +1,19 @@
+Les sauts :
+
+1. Point de départ — `NkCanvasApp::OnRender(NkRenderWindow &target)`, dans `include/NKCanvas/App/NkCanvasApp.h`, lignes 262-264. Cette méthode est le point d'extension où une application dérivée réalise son rendu. L'appel `target.Clear(couleur)` est celui donné par l'énoncé dans le rendu de l'application ; le corps par défaut de `OnRender` ne fait lui-même aucun appel à `Clear`.
+
+2. `NkRenderWindow::Clear(const NkColor2D &color)`, dans `include/NKCanvas/Renderer/Targets/NkRenderWindow.h`, ligne 77. `NkRenderWindow` hérite de `NkRenderTarget` et redéfinit `Clear` avec `override`. L'appel vise donc la méthode correspondant à la cible de rendu concrète. L'en-tête en donne la déclaration, mais pas le corps de cette méthode.
+
+3. Contrat parent — `NkRenderTarget::Clear(const NkColor2D &color)`, dans `include/NKCanvas/Renderer/Targets/NkRenderTarget.h`, lignes 54-55. Le commentaire indique que cette opération vide le framebuffer avec la couleur indiquée. La méthode est virtuelle pure (`= 0`) : elle impose un contrat aux classes concrètes, mais ne fournit pas son implémentation. Ce repère explique le contrat de `Clear` ; il ne constitue pas un appel supplémentaire exécuté après `NkRenderWindow::Clear`.
+
+Arrêt :
+
+`nkentseu::renderer::NkRenderWindow::Clear(const NkColor2D &color)`, déclarée dans `include/NKCanvas/Renderer/Targets/NkRenderWindow.h`, ligne 77.
+
+Pourquoi là :
+
+La déclaration porte `override`, mais aucun corps de `NkRenderWindow::Clear` n'est fourni dans cet en-tête. La méthode parente `NkRenderTarget::Clear` est purement virtuelle et ne contient pas non plus de corps exécutable. Le kit fournit les en-têtes et les bibliothèques compilées, sans le fichier source d'implémentation permettant de poursuivre ce chemin. C'est la frontière observable : pour découvrir ce que fait réellement la méthode à l'intérieur, il faudrait accéder à son implémentation ou examiner le code de la bibliothèque avec des outils adaptés.
+
+Ce que je sais maintenant :
+
+Le rendu d'une `NkCanvasApp` reçoit une référence vers une `NkRenderWindow`. L'application peut appeler `Clear` sur cette cible pour demander l'effacement du framebuffer avec une couleur. `NkRenderWindow` fournit la redéfinition concrète du contrat abstrait de `NkRenderTarget`. En revanche, les seuls en-têtes ne me permettent pas d'affirmer comment la méthode communique avec le contexte graphique, quel appel de backend elle effectue, ni quelles opérations GPU sont exécutées. Ce serait une hypothèse tant que je n'ai pas examiné l'implémentation.

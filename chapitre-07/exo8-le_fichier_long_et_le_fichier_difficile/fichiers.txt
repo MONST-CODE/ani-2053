@@ -1,0 +1,15 @@
+
+Le long :
+include/NKEvent/NkKeycodeMap.h — 2089 lignes
+[Pourquoi sa structure est relativement facile à comprendre, après vérification.]
+
+Le difficile :
+include/NKCanvas/Renderer/Core/NkTransformable.h — 231 lignes
+[Pourquoi comprendre son état demande de suivre plusieurs éléments du code.]
+
+Ce qu'ils gardent :
+[Décrire les données du fichier long et leurs sources de modification.]
+[Décrire les données du fichier court et les méthodes qui les modifient.]
+
+L'écart :
+[Comparer la complexité de l'état, les dépendances entre données et le nombre d'endroits qui peuvent les modifier. Appuyer l'analyse sur des éléments observés dans les deux en-têtes.]

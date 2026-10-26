@@ -1,0 +1,11 @@
+Ce qu'il possède :
+Dans include/NKCanvas/Renderer/Core/NkTransformable.h, je compte 8 membres de données privés : mPosition, mRotation, mScale et mOrigin, qui représentent les quatre propriétés géométriques ; mCachedTransform et mCachedInverse, qui sont des caches ; puis mDirty et mInverseDirty, deux indicateurs d'état des caches. Je compte donc bien 8 variables, mais je distingue les 4 propriétés de l'objet des 4 éléments qui servent à gérer les résultats calculés.
+
+Qui l'appelle :
+Recherche effectuée dans include/ avec grep -RIn --include='*.h' --include='*.hpp' 'NkTransformable'. Usages réels : include/NKCanvas/Renderer/Shapes/NkShape.h inclut l'en-tête et déclare NkShape comme classe dérivée de NkTransformable ; include/NKCanvas/Renderer/Resources/NkSprite.h fait de même pour NkSprite et NkText. Les occurrences dans NkRectangleShape.h, NkLineShape.h et NkDrawable.h sont des mentions dans les commentaires, pas des déclarations d'héritage ni des appels à une méthode de NkTransformable.
+
+Ce qu'il promet :
+D'après les noms et signatures publics, la classe permet de régler et de consulter la position, la rotation, l'échelle et le pivot (SetPosition/GetPosition, SetRotation/GetRotation, SetScale/GetScale, SetOrigin/GetOrigin). Elle propose aussi les changements incrémentaux Move, Rotate et Scale, ainsi que l'accès à GetTransform et GetInverseTransform. Elle déclare également ses opérations de construction, destruction, copie et déplacement. Je décris ici son contrat apparent, pas l'algorithme interne de chaque méthode.
+
+Ce que je n'ai pas lu :
+Les corps des méthodes n'étaient pas nécessaires pour répondre : les membres se comptent dans la section privée, les utilisateurs se vérifient par recherche dans include/, et le contrat apparent se lit dans les noms et signatures publics. Je ne conclus donc pas, à partir de cet examen, aux détails exacts des calculs, du cache ou de l'inversion de la transformation.

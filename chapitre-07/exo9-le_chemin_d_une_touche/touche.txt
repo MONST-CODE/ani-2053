@@ -1,0 +1,13 @@
+
+Les couches :
+1. Windows — message WM_KEYDOWN transmis à la fenêtre.
+2. [Fonction Win32 et fichier : préciser ce que le code établit.]
+3. [Traitement du message dans NKWindow : préciser la preuve.]
+4. [Création ou transmission de NkKeyPressEvent : préciser la preuve.]
+5. [Passage dans NkCanvasApp jusqu'à OnKeyPress : préciser la preuve.]
+
+Où je me suis arrêté :
+[Indiquer le dernier lien que tu as pu vérifier dans le code. Préciser les étapes que tu n'as pas pu établir et pourquoi, notamment si le corps est absent des en-têtes.]
+
+Combien :
+[Nombre de couches identifiées dans la chaîne et nombre de couches dont le travail a été directement confirmé dans le code.]

@@ -1,0 +1,20 @@
+
+Module :
+[Nom du module choisi.]
+
+Après le projet :
+[Ligne KIT_DEPENDS consultée.]
+[Première estimation : ce que le module fait et ne fait pas.]
+
+Après un programme :
+[Programme ou exemple consulté, et ce que tu y as lu.]
+[Deuxième estimation, sans corriger la première.]
+
+Après les en-têtes :
+[Chemin de l’en-tête principal et ce qu’il expose.]
+[Troisième estimation.]
+
+L'écart :
+[Ce que les dépendances m’ont permis d’anticiper, ou m’ont fait croire à tort.]
+[Ce que le programme a ajouté ou corrigé.]
+[Ce que les en-têtes ont ajouté ou corrigé.]

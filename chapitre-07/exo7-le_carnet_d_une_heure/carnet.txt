@@ -1,0 +1,17 @@
+
+Question : [Question précise]
+Date : [AAAA-MM-JJ]
+Début : [HH:MM]
+Fin : [HH:MM]
+
+Les endroits :
+[Chemin du fichier] — [fonction ou classe] : [ce que tu y as observé]
+
+Les surprises :
+[Date] — [Observation inattendue et preuve dans le code]
+
+Les questions ouvertes :
+[Date] — [Question non résolue et raison]
+
+Les mensonges :
+[Contradiction démontrée avec le fichier concerné, ou indication explicite qu'aucune contradiction n'a été trouvée]

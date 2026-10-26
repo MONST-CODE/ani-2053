@@ -1,0 +1,34 @@
+Par le texte :
+
+Commande de recherche ciblée, exécutée depuis la racine du kit :
+
+`rg -n 'target\.Draw\s*\(|drawable\.Draw\s*\(' include/ appelants.cpp`
+
+Résultats pertinents dans les en-têtes et le fichier de test :
+
+- `include/NKCanvas/Renderer/Core/NkDrawable.h` : le commentaire de la ligne 14 évoque la soumission des sommets par `target.Draw(vertices, ...)`. Le commentaire de la ligne 26 présente également un exemple de soumission de sommets.
+- `include/NKCanvas/Renderer/Core/NkRenderer2D.h` : vers la ligne 193, `drawable.Draw(*mTarget, states)` montre un autre chemin d'appel passant par la façade de rendu.
+- `include/NKCanvas/Renderer/Targets/NkRenderTarget.h` : le commentaire de la ligne 20 présente `target.Draw(sprite)`. Le commentaire de la ligne 26 présente `target.Draw(va)`. La ligne 112 contient l'appel effectif `drawable.Draw(*this, states)`. Les autres occurrences de `target.Draw` dans ce fichier sont des commentaires décrivant l'utilisation de la cible.
+- `include/NKCanvas/Renderer/Targets/NkRenderWindow.h` : le commentaire de la ligne 29 présente `target.Draw(sprite)`.
+- `appelants.cpp` : `target.Draw(mObjet)` est l'appel effectué par l'application. Dans `AppelantTest::Draw`, `target.Draw(sommets, 4, NkPrimitiveType::NK_LINES, states)` soumet les quatre sommets au rendu.
+
+Cette recherche fait apparaître des exemples documentaires, des appels de méthodes et des chemins de rendu différents. Elle ne prouve pas que chaque occurrence a été exécutée. Pour un relevé exhaustif reproductible, conserver la sortie complète de la commande et noter séparément les commentaires et les instructions exécutables.
+
+Par la pile :
+
+Point d'arrêt placé dans `AppelantTest::Draw`, sur l'instruction `target.Draw(sommets, 4, NkPrimitiveType::NK_LINES, states)`.
+
+Commande ou geste : compilation et lancement de `appelants.cpp` dans le débogueur, puis attente du premier arrêt dans cette méthode. La pile ci-dessous doit être remplacée par les cadres réellement affichés par le débogueur, du cadre courant vers les appelants :
+
+1. `AppelantTest::Draw(...)` — `appelants.cpp`, méthode qui soumet les quatre sommets.
+2. [Recopier le cadre appelant réellement affiché.]
+3. [Recopier le cadre suivant réellement affiché.]
+4. [Ajouter les autres cadres visibles, notamment ceux provenant de la bibliothèque compilée, s'ils apparaissent.]
+
+Les différences :
+
+La recherche textuelle peut trouver des commentaires, des déclarations et des exemples qui ne sont pas exécutés. La pile d'appels montre, au contraire, le chemin actif au moment où le point d'arrêt est atteint.
+
+Le premier cadre attendu est `AppelantTest::Draw`, puisque le point d'arrêt est placé dans cette méthode. L'appel `target.Draw(mObjet)` conduit à la surcharge de `NkRenderTarget` qui appelle `drawable.Draw(*this, states)`, puis à la redéfinition de `Draw` de l'objet concret. La soumission des sommets constitue un second appel à `Draw`, mais avec une signature différente.
+
+Les autres écarts doivent être établis à partir de la pile réelle. Une fonction peut provenir d'une bibliothèque compilée dont le fichier source n'est pas présent dans le kit. Dans ce cas, le débogueur peut afficher un nom de fonction, un module ou un décalage d'adresse plutôt qu'un chemin source. Il faut conserver cette information sans inventer le fichier ou les appels internes manquants.

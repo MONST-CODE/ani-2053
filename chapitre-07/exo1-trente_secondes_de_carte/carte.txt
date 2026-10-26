@@ -1,6 +1,14 @@
-Module : NKGUI
-D'après le projet : ['NKContainers', 'NKCore', 'NKEvent', 'NKFileSystem', 'NKFont', 'NKImage', 'NKLogger', 'NKMath', 'NKMemory', 'NKPlatform', 'NKThreading']
-Après l'en-tête : "NKGui/Widgets/NkGuiWidgets.h", "NKGui/Core/NkGuiIntrospect.h", "NKGui/Core/NkGuiContext.h", "NKGui/Core/NkGuiFont.h", "NKGui/Core/NkGuiDrawList.h", 
-                    "NKGui/Core/NkGuiInput.h", "NKGui/Core/NkGuiTypes.h", "NKGui/NkGuiExport.h", "NKPlatform/NkX11Clean.h"
-    Donc le seul reel Modul dont depends NKGUI D'apres son entete est NKPlatform
-Mes erreurs : Le fichier de projet "canvas.jenga" Ma Montrer toutes les Dependances dont Depend le Module NKGUI hors Son fichier d'entete NKGui.h Luin nous a fais Croire que NKGUI depend uniquement du Modules NKPlatform
+Module : NKGui
+
+D'après le projet :
+Les dépendances directes déclarées sont NKContainers, NKCore, NKEvent, NKFileSystem, NKFont, NKImage, NKLogger, NKMath, NKMemory, NKPlatform et NKThreading.
+NKEvent laisse prévoir que le module peut exploiter des événements d'entrée.
+NKFont et NKImage suggèrent une interface pouvant utiliser des polices et des images.
+NKContainers, NKMath et NKMemory suggèrent des structures de données, des opérations de calcul et des besoins de gestion mémoire.
+Le projet ne déclare pas de dépendance directe à NKAudio, NKNetwork ni NKCanvas ; je prévois donc que la fonction principale de NKGui est l'interface, sans conclure que toute fonction audio, réseau ou graphique lui est impossible.
+
+Après l'en-tête :
+Canvas/include/NKGui/NKGui.h. C'est un en-tête parapluie : il rassemble NkGuiExport, NkGuiTypes, NkGuiInput, NkGuiDrawList, NkGuiFont, NkGuiContext, NkGuiIntrospect et NkGuiWidgets. Il inclut aussi NKPlatform/NkX11Clean.h pour nettoyer les macros X11 avant les déclarations de NKGui. Son commentaire présente NKGui comme un framework d'interface avec deux paradigmes, immédiat et retenu, mais décrit le kit comme « Phase 1 (squelette) » et annonce que le cœur (DrawList, Context, Input et Interaction), les widgets, les fenêtres, le docking et le mode retenu arrivent aux phases 2 à 6.
+
+Mes erreurs :
+J'ai confondu les dépendances de construction du module avec les inclusions de son en-tête principal. Canvas.jenga déclare onze dépendances directes pour NKGui ; NKGui.h n'est pas censé les répéter toutes. Il inclut un en-tête externe de NKPlatform, mais aussi plusieurs en-têtes internes à NKGui : cela ne signifie donc pas que NKPlatform est son unique dépendance. J'ai aussi traité le nom des dépendances comme une preuve certaine des fonctionnalités : elles donnent des indices sur les besoins et les liens de construction, pas une démonstration complète du comportement ni du degré d'achèvement. Enfin, mes notes initiales ne contenaient pas cinq lignes de prédiction fonctionnelle écrites avant l'ouverture de l'en-tête ; les lignes ci-dessus reconstruisent prudemment ce qu'on peut déduire de KIT_DEPENDS, elles ne prétendent pas être une transcription d'une estimation antérieure.

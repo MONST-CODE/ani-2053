@@ -1,0 +1,15 @@
+Le commentaire :
+
+Dans `Canvas/include/NKCanvas/Renderer/Core/NkRenderStates.h`, lignes 24 à 27, le bloc « FUTURS AJOUTS » affirme que le système `NkShader` n'est pas encore livré dans NKCanvas et qu'il suffira d'inclure son en-tête lorsque le module existera. La ligne 37 qualifie encore `NkShader` de « placeholder ». Cette formulation laisse entendre que le système de shaders n'est pas encore disponible dans le kit.
+
+Le code :
+
+Dans `Canvas/include/NKCanvas/Renderer/Resources/NkShader.h`, la classe `NkShader` est effectivement déclarée à partir de la ligne 107. Elle expose plusieurs opérations : `SetSourceGLSL`, `SetSourceHLSL`, `SetSourceMSL`, `SetSourceSPIRV`, `Compile`, `Destroy` et des méthodes pour régler les uniformes. Elle propose également `IsValid()` pour vérifier si un identifiant GPU est disponible. De plus, `Canvas/include/NKCanvas/Renderer/Resources/NkShaderBackend.h` définit une table de fonctions pour créer, utiliser et détruire les shaders, ainsi que pour modifier leurs uniformes. Le système possède donc déjà une API et une architecture d'intégration : il ne se réduit pas à une simple déclaration provisoire de classe.
+
+La preuve :
+
+Dans le répertoire `Canvas/include/NKCanvas`, rechercher les expressions `pas encore implemente dans NKCanvas`, `class NkShader`, `NkShaderInstallUnsupportedBackend` et `CreateGLShader`. La première apparaît dans `Renderer/Core/NkRenderStates.h`, tandis que la classe et ses opérations sont déclarées dans `Renderer/Resources/NkShader.h`. Le mécanisme d'intégration entre le shader et les backends est décrit dans `Renderer/Resources/NkShaderBackend.h`, notamment autour de la structure `NkShaderBackend` et de la fonction `NkShaderSetBackend`. Enfin, `Backend/OpenGL/NkOpenGLRenderer2D.h`, lignes 39 à 41, mentionne les opérations GPU des shaders et déclare `CreateGLShader`. La comparaison montre que l'affirmation générale du commentaire est devenue trop large. Il faut toutefois rester précis : `NkShaderBackend.h` indique également que plusieurs backends disposent encore d'une implémentation provisoire non prise en charge. L'existence de l'API ne prouve donc pas que tous les backends fonctionnent.
+
+Ce qu'il dit de son auteur :
+
+Le commentaire semble avoir conservé une description d'un état antérieur du module, ou avoir été écrit à une époque où l'implémentation était encore incomplète. Je ne peux pas connaître l'intention réelle de son auteur. Ce constat montre surtout qu'un commentaire peut devenir obsolète lorsque le code évolue. Il faut alors confronter la documentation aux déclarations et aux mécanismes réellement présents, sans en déduire que toutes les fonctionnalités sont achevées.

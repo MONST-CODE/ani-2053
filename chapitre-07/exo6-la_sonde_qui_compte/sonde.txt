@@ -1,0 +1,17 @@
+
+Plafond 60 :
+Passages : [mesure réelle de l'essai 1]
+Durée Time() : [mesure réelle de l'essai 1] s
+
+Sans plafond :
+Passages : [mesure réelle de l'essai 2]
+Durée Time() : [mesure réelle de l'essai 2] s
+
+Sans la ligne :
+Passages : [mesure réelle de l'essai 3]
+Durée Time() : [mesure réelle de l'essai 3] s
+Passages sans plafond et sans ligne : [mesure réelle de l'essai 4]
+Durée Time() sans plafond et sans ligne : [mesure réelle de l'essai 4] s
+
+Les écarts :
+[Comparer les quatre mesures et expliquer les différences observées.]
