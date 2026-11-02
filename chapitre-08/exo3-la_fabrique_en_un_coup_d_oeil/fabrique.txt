@@ -1,0 +1,13 @@
+Recherche :
+Commande exécutée depuis Canvas : rg -n --glob "*.h" "NkOpenGLRenderer2D" include
+La liste des fichiers uniques a été vérifiée séparément avec rg -l. Le nom apparaît dans cinq fichiers uniques : le fichier de son backend et quatre fichiers extérieurs que j'ai classés ci-dessous.
+
+Hors de son dossier :
+NKGui/Core/NkGuiDrawListRaster.h:35 — commentaire qui documente les facteurs de mélange du backend OpenGL.
+NKCanvas/Renderer/Core/NkRenderer2D.h:19 — commentaire.
+NKCanvas/Renderer/Core/NkIRenderer2D.h:15 — commentaire.
+NKCanvas/Renderer/Resources/NkTextureBackend.h:22 et 24–28 — commentaires / exemples.
+J'ai ouvert chaque ligne pour vérifier qu'il ne s'agissait pas d'une construction ou d'un appel actif.
+
+Conclusion :
+NkRenderer2DFactory.h expose Create comme une fonction renvoyant NkIRenderer2D*, et ne nomme pas NkOpenGLRenderer2D dans son interface publique. Les mentions extérieures que j'ai trouvées sont des commentaires, pas des appels actifs. Cela soutient l'idée que la fabrique centralise le choix concret dans son implémentation compilée. Je ne peux pas décrire le corps de Create à partir de cet en-tête seul.

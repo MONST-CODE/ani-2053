@@ -1,0 +1,12 @@
+Publiques :
+24 déclarations de méthodes de service dans NkRenderTarget.h, destructeur exclu et surcharges comptées séparément. Si je compte par noms distincts, j'obtiens 19. Ma règle est de compter les déclarations séparément.
+
+Utiles :
+Clear et Display via la boucle de NkCanvasApp ; Draw pour les objets effectivement dessinés par mes programmes ; GetRenderer pour la création de la texture de l'exercice 8 ; Capture si l'on compte le mécanisme de capture demandé comme usage indirect de la coquille. [Adapter cette liste à tes appels réellement écrits.]
+
+Les autres :
+[Énumérer chaque méthode non utilisée dans les programmes du Sprint et expliquer son besoin : vue, viewport, resize, coordonnées, accès avancé au renderer, etc.]
+Draw(const NkIDrawable2D&) est explicitement une compatibilité provisoire : son commentaire annonce son retrait après migration vers NkDrawable.
+
+Le rapport :
+[Calculer utiles / total avec la convention annoncée.] Le résultat montre quelle part de l'API est utilisée par ces programmes précis. Il ne prouve pas que les autres méthodes sont inutiles dans tous les projets. La façade simplifie le cas courant mais expose aussi de nombreuses opérations avancées ; la méthode de compatibilité montre qu'elle porte encore une dette de transition.

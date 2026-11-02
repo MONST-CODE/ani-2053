@@ -1,0 +1,21 @@
+Virtuelles pures :
+30 méthodes. J'ai compté uniquement les fonctions `= 0` appartenant à NkIRenderer2D, et non celles d'une autre classe ou d'un exemple commenté. J'ai vérifié le compte en relisant les sections de l'interface. Les méthodes virtuelles avec corps sont comptées à part : 15 méthodes de service, plus le destructeur virtuel si on inclut ce dernier.
+
+Dorsaux :
+Software : include/NKCanvas/Backend/Software/NkSoftwareRenderer2D.h
+OpenGL : include/NKCanvas/Backend/OpenGL/NkOpenGLRenderer2D.h
+Vulkan : include/NKCanvas/Backend/Vulkan/NkVulkanRenderer2D.h
+DirectX 11 : include/NKCanvas/Backend/DirectX/NkDX11Renderer2D.h
+DirectX 12 : include/NKCanvas/Backend/DirectX/NkDX12Renderer2D.h
+Metal : include/NKCanvas/Backend/Metal/NkMetalRenderer2D.h
+
+Ce que chacun écrit :
+NkSoftwareRenderer2D hérite de NkBatchRenderer2D et redéfinit 9 méthodes (sans le destructeur).
+NkOpenGLRenderer2D hérite de NkBatchRenderer2D et redéfinit 9 méthodes.
+NkVulkanRenderer2D hérite de NkBatchRenderer2D et redéfinit 8 méthodes dans la branche avec en-têtes Vulkan.
+NkDX11Renderer2D hérite de NkBatchRenderer2D et redéfinit 8 méthodes.
+NkDX12Renderer2D hérite de NkBatchRenderer2D et redéfinit 8 méthodes.
+NkMetalRenderer2D hérite de NkBatchRenderer2D et redéfinit 9 méthodes.
+
+Le coût :
+Un nouveau dorsal ne réécrit pas les 30 opérations abstraites une par une : NkBatchRenderer2D en implémente déjà une partie. Le travail restant est propre au backend et se voit dans les méthodes `override` de chaque en-tête. Il faut aussi implémenter le comportement réel, gérer le contexte/les ressources et tester le backend sur sa plateforme. J'ai exclu les destructeurs de mes comptes et je n'ai pas compté les méthodes héritées.

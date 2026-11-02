@@ -1,0 +1,43 @@
+Stratégie :
+NKCanvas/Renderer/Core/NkIRenderer2D.h:46
+class NkIRenderer2D {
+Cette interface donne un contrat commun à plusieurs backends concrets.
+
+Fabrique :
+NKCanvas/Renderer/Core/NkRenderer2DFactory.h:36
+static NkIRenderer2D *Create(NkIGraphicsContext *ctx);
+La fabrique expose le type abstrait et centralise la création. Le corps de Create est dans la bibliothèque compilée, pas dans cet en-tête.
+
+Façade :
+NKCanvas/Renderer/Targets/NkRenderTarget.h:48
+class NkRenderTarget {
+La cible simplifie l'accès au rendu courant par Clear, Draw et Display, tout en exposant aussi des accès avancés.
+
+Patron de méthode :
+NKCanvas/App/NkCanvasApp.h:202
+[Recopier la ligne exacte de Run après vérification.]
+La classe de base possède Execute et expose des crochets On... redéfinissables.
+
+Observateur :
+NKEvent/NkEventDispatcher.h:121
+[Recopier la ligne exacte de la déclaration Dispatch après vérification.]
+Les callbacks sont appelés par le répartiteur typé ; true consomme l'événement.
+
+Singleton :
+NKEvent/NkEventDispatcher.h:417
+inline NkInputQuery NkInput;
+L'instance globale donne un point d'accès commun à l'interrogation des entrées.
+
+Adaptateur :
+NKCanvas/UI/NkGuiCanvasBackend.h:213
+[Recopier la ligne exacte de Submit après vérification.]
+Le backend traduit une NkGuiDrawList en appels NkIRenderer2D.
+
+Composite :
+NKCanvas/Renderer/Resources/NkSprite.h:40
+class NkSprite : public NkTransformable, public NkDrawable {
+Le sprite combine le drawable et le transformable et doit composer l'état reçu.
+
+Commande :
+NKThreading/NkFuture.h:889–929 — COMMENTAIRE SEUL ; approximations actives : NkActionCommand et NkGuiDrawCmd.
+Le kit ne montre pas ici une commande métier complète, exécutable et annulable. AsyncTask::Execute est un exemple commenté, non une implémentation active.

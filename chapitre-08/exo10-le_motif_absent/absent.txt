@@ -1,0 +1,10 @@
+L'endroit :
+[Fichier 1]:[ligne] — décrire la décision ou création réelle.
+[Fichier 2]:[ligne] — montrer le deuxième cas et expliquer ce qui est identique au premier.
+Comparer les entrées, conditions, sorties et effets. Dire si les lignes sont du code actif et non des commentaires.
+
+Le motif :
+[Nom du motif.] Expliquer comment il répond au problème commun et pourquoi il est préférable à une simple fonction commune ou à une autre abstraction. Indiquer ce qui resterait identique du point de vue du client.
+
+Le coût :
+[Fichiers à modifier, fichiers à ajouter, fonctions à adapter, tests à créer.] Risques : régression des appels existants, valeurs par défaut, comportement par plateforme, ordre d'exécution, allocation/durée de vie ou performance selon le cas.

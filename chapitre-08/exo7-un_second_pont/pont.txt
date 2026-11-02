@@ -1,0 +1,14 @@
+Le premier pont :
+NKCanvas/UI/NkGuiCanvasBackend.h:213 — Submit reçoit une NkGuiDrawList et les dimensions du framebuffer. Il traduit les clips, modes de fusion et vertices en appels à NkIRenderer2D, notamment SetClip, SetBlendMode, DrawVertices et PopClip.
+
+Le second pont :
+Je proposerais une classe qui reçoit la même NkGuiDrawList, l'interprète en pixels RGBA8 dans une cible mémoire, puis utilise NkImage pour enregistrer le buffer dans un fichier image. Le dessin ne dépendrait ni d'une fenêtre ni d'un GPU.
+
+Combien de méthodes :
+Ma proposition expose quatre méthodes : Init, SetTexture, Submit et Save. Ce compte correspond à l'API publique minimale du service « exporter une liste vers un fichier », et non au nombre de méthodes de la classe déjà présente dans le kit.
+
+Les données :
+La cible requiert largeur, hauteur et buffer RGBA8 ; la liste fournit vertices, indices et commandes ; une table de textures associe chaque identifiant à un pointeur de pixels, ses dimensions et son nombre de canaux. Les textures doivent rester vivantes pendant la rasterisation.
+
+Dans le kit :
+NKGui/Core/NkGuiDrawListRaster.h définit NkGuiDrawListRaster. Elle possède Init, Effacer, PoserTexture, Rasteriser, Largeur, Hauteur, Pixels et Pixel. Elle réalise la rasterisation en mémoire sans fenêtre ni GPU. NKImage/Core/NkImage.h fournit les opérations de sauvegarde, notamment SaveToFile. La solution du kit sépare donc rasterisation des pixels et encodage du fichier, alors que ma façade à quatre méthodes les regroupe.

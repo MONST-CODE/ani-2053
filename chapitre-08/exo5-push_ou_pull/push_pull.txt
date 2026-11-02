@@ -1,0 +1,12 @@
+Situations :
+Flèche droite maintenue — Pull, car le déplacement dépend d'un état durable. Outil : NkInput.IsKeyDown(NkKey::NK_RIGHT), NKEvent/NkEventDispatcher.h, vérifier la ligne exacte de la méthode.
+Échap pressé — Push, car le menu pause doit réagir à un appui ponctuel. Outil : OnKeyPress, NKCanvas/App/NkCanvasApp.h:282, et NkKeyPressEvent, NKEvent/NkKeyboardEvent.h:972.
+Position de la souris — Pull, car je demande la position courante. Outil : NkInput.MouseX/MouseY, NKEvent/NkEventDispatcher.h.
+Fichier déposé — Push, car le dépôt arrive comme événement. Outil : NkDropFileEvent, NKEvent/NkDropEvent.h:373.
+Redimensionnement — Push, car le changement de dimensions survient à un instant donné. Outil : NkWindowResizeEvent, NKEvent/NkWindowEvent.h:453.
+Double-clic — Push, car le double-clic est un événement ponctuel. Outil : NkMouseDoubleClickEvent, NKEvent/NkMouseEvent.h:684.
+
+Les deux bogues :
+Si j'utilise seulement l'événement d'appui pour la flèche droite, le déplacement peut ne se produire qu'une fois et s'arrêter alors que la touche est maintenue.
+Si j'interroge Échap et bascule le menu à chaque frame, un appui maintenu déclenche plusieurs basculements. Le bon mécanisme est l'événement d'appui initial ou une détection explicite du front.
+ 
